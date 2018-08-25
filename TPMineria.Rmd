@@ -1,0 +1,35 @@
+---
+title: "TPMineria"
+author: "Zacarías F. Ojeda"
+date: "8/25/2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+Cargamos los datasets originales 
+
+```{r, echo=TRUE}
+sentencias_1c <- read_csv("./sentencias_1c.csv")
+
+```
+
+
+
+Exploremos la variable capital reclamado
+
+```{r}
+histograma <- sentencias_1c %>% 
+  ggplot() +
+  geom_histogram(aes(x=log(reccap)))
+
+histograma
+```
+
