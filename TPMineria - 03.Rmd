@@ -9,10 +9,16 @@ output:
 
 ```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+if(!require("readr")) install.packages("readr")
 library(readr)
+if(!require("ggplot2")) install.packages("ggplot2")
 library(ggplot2)
+if(!require("dplyr")) install.packages("dplyr")
 library(dplyr)
+if(!require("lubridate")) install.packages("lubridate")
 library(lubridate)
+if(!require("arules")) install.packages("arules")
+library("arules")
 ```
 
 Cargamos los datasets originales 
@@ -160,7 +166,7 @@ sentencias_bool <- select(sentencias_1c, -nro, -tproc, -as, -ccon, -finicio, -fr
 
 rules <- apriori(sentencias_bool, parameter = list(supp=0.01, conf=0.7, minlen=2), appearance = list(rhs="demorado"))
 summary(rules)
-inspect(rules[1:10])
+inspect(rules[1:8])
 
 
 
