@@ -1,0 +1,9 @@
+formato trabajo -> LNCS  -> word
+                         -> latex
+ * Resumen
+ * Intro - { Dominio, Hipótesis, Regla de negocios, Software }
+ * Datos / Procesamiento
+ * Reglas
+ * Resultados / Discusión
+ * Conclusión
+ * Referencias
