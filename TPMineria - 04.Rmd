@@ -137,38 +137,19 @@ Separamos Localidad y Circunscripcion en columnas.
 
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
-  mutate(loc_Gualeguaychu = localidad == 'Gualeguaychú') %>% 
-  mutate(loc_Rosario_del_Tala  = localidad == 'Rosario del Tala' ) %>% 
-  mutate(loc_Parana = localidad == 'Paraná') %>% 
-  mutate(loc_Concepcion_del_Uruguay = localidad == 'Concepción del Uruguay') %>% 
-  mutate(loc_Concordia = localidad == 'Concordia') %>% 
-  mutate(loc_Federal = localidad == 'Federal') %>% 
-  mutate(loc_Diamante = localidad == 'Diamante') %>% 
-  mutate(loc_Colon = localidad == 'Colón') %>% 
-  mutate(loc_Victoria = localidad == 'Victoria') %>% 
-  mutate(loc_La_Paz = localidad == 'La Paz') %>% 
-  mutate(loc_Gualeguay = localidad == 'Gualeguay') %>% 
-  mutate(loc_Nogoya = localidad == 'Nogoyá') %>% 
-  mutate(loc_Chajari = localidad == 'Chajarí') %>% 
-  mutate(loc_Villaguay = localidad == 'Villaguay') %>% 
-  mutate(loc_San_Salvador = localidad == 'San Salvador') %>% 
-  mutate(loc_Federacion = localidad == 'Federación') %>% 
-  mutate(loc_Feliciano = localidad == 'Feliciano') %>% 
-  mutate(loc_Villa_Paranacito = localidad == 'Villa Paranacito')
-
+  mutate(localidad = as.factor(localidad))
 ```
+
 Separo matria en columnas
 
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
-  mutate(materia_fam_pen = materia == 'fam|pen') %>% 
-  mutate(materia_paz  = materia == 'paz' ) %>% 
-  mutate(materia_fam = materia == 'fam') %>% 
-  mutate(materia_cco = materia == 'cco') %>% 
-  mutate(materia_cco_lab = materia == 'cco|lab') %>% 
-  mutate(materia_cco_fam_lab = materia == 'cco|fam|lab') %>% 
-  mutate(materia_cco_lab_pen = materia == 'cco|lab|pen')
+  mutate(materia = as.factor(materia))
+```
 
+```{r}
+sentencias_1c <- sentencias_1c %>% 
+  mutate(tproc = as.factor(tproc)) 
 ```
 
 
@@ -176,7 +157,7 @@ Tomo las columnas tipo booleanos y aplico Apriori.
 
 ```{r}
 
-sentencias_bool <- select(sentencias_1c, -nro, -tproc, -as, -ccon, -finicio, -fres, -fdesp, -fvenc1, -fvenc2, -tres, -mat, -justiciables, -reccap, -iep, -duracion, -mediana_duracion, -circunscripcion, -localidad, -materia)
+sentencias_bool <- select(sentencias_1c, -nro, -as, -ccon, -finicio, -fres, -fdesp, -fvenc1, -fvenc2, -tres, -mat, -justiciables, -reccap, -iep, -duracion, -mediana_duracion, -circunscripcion)
 
 rules <- apriori(sentencias_bool, parameter = list(supp=0.01, conf=0.7, minlen=2), appearance = list(rhs="demorado"))
 summary(rules)
@@ -190,3 +171,10 @@ inspect(top.support[1:8])
 
 
 ```
+
+
+```{r}
+library(arulesViz)
+plot(rules, method = "grouped")
+```
+
