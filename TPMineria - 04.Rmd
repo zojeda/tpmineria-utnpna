@@ -180,24 +180,11 @@ sentencias_bool <- select(sentencias_1c, -nro, -tproc, -as, -ccon, -finicio, -fr
 
 rules <- apriori(sentencias_bool, parameter = list(supp=0.01, conf=0.7, minlen=2), appearance = list(rhs="demorado"))
 summary(rules)
-```
-
-Muestro las primeras 8 reglas.
-
-```{r}
 inspect(rules[1:8])
 
-```
-Ordeno las reglas por mayor confianza.
-
-```{r}
 top.confidence <- sort(rules, decreasing = TRUE, na.last = NA, by = "confidence")
 inspect(top.confidence[1:8])
 
-```
-Ordeno las reglas por mayor soporte.
-
-```{r}
 top.support <- sort(rules, decreasing = TRUE, na.last = NA, by = "support")
 inspect(top.support[1:8])
 
