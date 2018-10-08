@@ -1,29 +1,147 @@
 ---
 title: "TPMineria"
-author: "Zacarías F. Ojeda"
+author: "Bodean, Emiliano & Ojeda, Zacarías"
 date: "8/25/2018"
 output:
   html_document:
-    df_print: paged
+    css: lncs.css
+    md_extensions: +footnotes
+    number_sections: yes
+    self_contained: no
+    template: lncs-template.html
+    theme: null
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    md_extensions: +footnotes
+    latex_engine: xelatex
+    template: lncs-template.tex
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+if(!require("readr")) install.packages("readr")
 library(readr)
+if(!require("ggplot2")) install.packages("ggplot2")
 library(ggplot2)
+if(!require("dplyr")) install.packages("dplyr")
 library(dplyr)
+if(!require("lubridate")) install.packages("lubridate")
+library(lubridate)
+if(!require("stringr")) install.packages("stringr")
+library(stringr)
+if(!require("arules")) install.packages("arules")
+library("arules")
+if(!require("kableExtra")) install.packages("kableExtra")
+library(kableExtra)
 ```
+
+```{r, include=FALSE}
+# utiles
+mostrar <- function (x, ...) {
+   UseMethod("mostrar", x)
+}
+
+mostrar.data.frame  <- function (.df, caption) {
+  .df %>% 
+    head() %>% # mostrando solamente los primeros 6 elementos
+    kable(caption = caption) %>% 
+    kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
+}
+```
+
 
 Cargamos los datasets originales 
 
-```{r, echo=TRUE}
-sentencias_1c <- read_csv("./sentencias_1c.csv")
+```{r, echo=TRUE, message=FALSE}
+sentencias_1c <- read_csv("./sentencias_1c.csv") %>% 
+  filter(is.na(mat) | toupper(mat)=="C") %>% # solo incluir materia civil  
+  select(-mat) 
 
+organismos <- read_csv("./organismos.csv")
+```
+
+Inspección de los datos
+
+```{r}
+sentencias_1c %>% 
+  mostrar(caption = "Sentencias Primera Instancia Original")
+```
+
+```{r}
+organismos %>% 
+  mostrar(caption = "Organismos")
+```
+
+Quitamos los tipos de procesos "Monitorios", ya que son de mero trámite y no interesan en el análisis
+```{r}
+sentencias_1c <- sentencias_1c %>% 
+  filter(!grepl("MONITORIO", tproc))
+```
+
+
+Calcula duracion como Fecha de Resolucion - Fecha de inicio
+
+```{r, echo=TRUE}
+sentencias_1c <- sentencias_1c %>% 
+  mutate(finicio = lubridate::dmy(finicio)) %>% 
+  mutate(fres = lubridate::dmy(fres)) %>% 
+  mutate(duracion = fres - finicio)
+
+sentencias_1c %>% 
+  mostrar(caption = "Sentencias con duración")
 ```
 
 
 
-Exploremos la variable capital reclamado
+Eliminamos filas que tienen datos invalidos de fecha (datos nulos o futuros por error de tipeo)
+Reemplazamos los datos NA de reccap por cero.
+
+```{r}
+sentencias_1c <- sentencias_1c %>% 
+  filter(!is.na(finicio)) %>%
+  filter(!is.na(fres)) %>% 
+  filter(fres < '2018-09-01', finicio < '2018-09-01')
+```
+
+
+
+Calcula los cuartiles de duración por cada tipo de proceso (tproc), y
+se clasifica en rapido / normal / demorado si duracion es mayor a media de tproc utilizando one hot encoding.
+
+```{r}
+demora <- sentencias_1c %>% 
+  group_by(tproc) %>% 
+  summarise(techo_rapido=quantile(duracion, probs=0.25),
+            piso_demorado=quantile(duracion, probs=0.75))
+
+sentencias_1c <- sentencias_1c %>% 
+  left_join(demora, by="tproc") %>% 
+  mutate(rapido = duracion <= techo_rapido) %>% 
+  mutate(normal = duracion > techo_rapido & duracion < piso_demorado) %>% 
+  mutate(demorado = duracion >= piso_demorado) %>% 
+  select(-duracion, -techo_rapido, -piso_demorado) # quitando columnas temporales 
+```
+
+```{r}
+sentencias_1c %>% 
+  mutate(tproc = str_trunc(tproc, 20))%>% 
+  mostrar(caption = "Agregando columnas demora") 
+
+```
+
+Agrega datos de organismos para tenerlos separados por columna, actualmente se encuentra en columna iep.
+
+```{r}
+organismos <- organismos %>% 
+  select(organismo, circunscripcion, localidad, materia)
+
+sentencias_1c <- sentencias_1c %>% 
+  left_join(organismos, by = c('iep'='organismo'))
+
+```
+
+Exploremos la variable capital reclamado para definir los rangos
 
 ```{r}
 histograma <- sentencias_1c %>% 
@@ -33,3 +151,99 @@ histograma <- sentencias_1c %>%
 histograma
 ```
 
+Calculamos los cuartiles para ver si nos sirven para parametrizar (reccap)
+
+```{r}
+print('1º Curtil:')
+quantile(pull(sentencias_1c[,'reccap']),.25, na.rm = TRUE)
+print('2º Curtil:')
+quantile(pull(sentencias_1c[,'reccap']),.50, na.rm = TRUE)
+print('3º Curtil:')
+quantile(pull(sentencias_1c[,'reccap']),.75, na.rm = TRUE)
+
+#View(sentencias_1c)
+```
+Como dos de los curtiles son cero, elimino los ceros y vuelvo a calcular los cuartiles.
+
+```{r}
+#reccap_not_cero <- which(sentencias_1c$reccap != 0)
+
+print('1º Curtil:')
+quantile(which(sentencias_1c$reccap != 0),.25)
+print('2º Curtil:')
+quantile(which(sentencias_1c$reccap != 0),.50)
+print('3º Curtil:')
+quantile(which(sentencias_1c$reccap != 0),.75)
+
+capmedio <- mean(pull(sentencias_1c[,'reccap']))
+
+sentencias_1c <- sentencias_1c %>% 
+  mutate(reccap_0 = reccap == 0) %>% 
+  mutate(reccap_1 = (reccap < quantile(which(sentencias_1c$reccap != 0),.25)) & (reccap!=0)) %>% 
+  mutate(reccap_2 = (reccap >= quantile(which(sentencias_1c$reccap != 0),.25)) & (reccap < quantile(which(sentencias_1c$reccap != 0),.50))) %>% 
+  mutate(reccap_3 = (reccap >= quantile(which(sentencias_1c$reccap != 0),.50)) & (reccap < quantile(which(sentencias_1c$reccap != 0),.75))) %>% 
+  mutate(reccap_4 = (reccap >= quantile(which(sentencias_1c$reccap != 0),.75))) 
+
+```
+
+Separo la columna justiciables en 4 rangos para poder aplicar apriori.
+
+```{r}
+
+sentencias_1c <- sentencias_1c %>% 
+  mutate(justiciables0_1 = justiciables < 2) %>% 
+  mutate(justiciables2_3 = (justiciables > 1) & (justiciables < 4)) %>% 
+  mutate(justiciables4_5 = (justiciables > 3) & (justiciables < 6)) %>% 
+  mutate(justiciables6_7 = (justiciables > 5) & (justiciables < 8)) %>% 
+  mutate(justiciables8_9 = (justiciables > 7) & (justiciables < 10)) %>% 
+  mutate(justiciables10_N = justiciables > 9)
+
+
+```
+
+Separamos Localidad y Circunscripcion en columnas.
+
+```{r}
+sentencias_1c <- sentencias_1c %>% 
+  mutate(localidad = as.factor(localidad))
+```
+
+Convertimos columna tproc en categórica, esto es requerido por el algoritmo
+
+```{r}
+sentencias_1c <- sentencias_1c %>% 
+  mutate(tproc = as.factor(tproc)) %>% 
+  mutate(circunscripcion = as.factor(circunscripcion)) %>% 
+  mutate(materia = as.factor(materia))
+```
+
+Tomos solamente las columnas tipo booleanos y categóricas.
+
+```{r}
+sentencias_final <- sentencias_1c %>% 
+  select(-nro, -as, -ccon, -finicio, -fres, -fdesp, -fvenc1, -fvenc2, -tres, -justiciables, -reccap, -iep, -localidad)
+
+sentencias_final %>% 
+  mostrar(caption = "Tabla final a utilizar en el algoritmo apriori")
+```
+
+```{r}
+
+rules <- apriori(sentencias_final, parameter = list(supp=0.01, conf=0.7, minlen=2), appearance = list(rhs=c("demorado", "rapido")))
+summary(rules)
+inspect(rules[1:8])
+
+top.confidence <- sort(rules, decreasing = TRUE, na.last = NA, by = "confidence")
+inspect(top.confidence[1:8])
+
+top.support <- sort(rules, decreasing = TRUE, na.last = NA, by = "support")
+inspect(top.support[1:8])
+
+
+```
+
+
+```{r}
+library(arulesViz)
+plot(rules)
+```

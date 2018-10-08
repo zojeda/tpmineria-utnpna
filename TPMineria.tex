@@ -1,0 +1,883 @@
+\RequirePackage{fixltx2e}
+\documentclass[runningheads,a4paper]{llncs}
+
+\usepackage[american]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{graphicx}
+
+%extended enumerate, such as \begin{compactenum}
+\usepackage{paralist}
+
+%put figures inside a text
+%\usepackage{picins}
+%use
+%\piccaptioninside
+%\piccaption{...}
+%\parpic[r]{\includegraphics ...}
+%Text...
+
+%Sorts the citations in the brackets
+%\usepackage{cite}
+
+%for easy quotations: \enquote{text}
+\usepackage{csquotes}
+
+\usepackage[T1]{fontenc}
+
+%better font, similar to the default springer font
+\usepackage{lmodern}
+%if more space is needed, exchange lmodern by mathptmx
+%\usepackage{mathptmx}
+
+%enable margin kerning
+\usepackage{microtype}
+
+%for demonstration purposes only
+\usepackage[math]{blindtext}
+
+\usepackage{ifxetex,ifluatex}
+\ifxetex
+  \usepackage{fontspec,xltxtra,xunicode}
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\else
+  \ifluatex
+    \usepackage{fontspec}
+    \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+    \newcommand{\euro}{€}
+  \else
+    \usepackage[utf8]{inputenc}
+    \usepackage{eurosym}
+  \fi
+\fi
+
+
+\makeatletter
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                       {-18\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {4\p@ \@plus 2\p@ \@minus 2\p@}%
+                       {\normalfont\normalsize\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                       {-12\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {2\p@ \@plus 1\p@ \@minus 1\p@}%
+                       {\normalfont\normalsize\itshape
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+\makeatother
+
+
+%\usepackage[capitalise,nameinlink]{cleveref}
+%Nice formats for \cref
+%\crefname{section}{Sect.}{Sect.}
+%\Crefname{section}{Section}{Sections}
+%\crefname{figure}{Fig.}{Fig.}
+%\Crefname{figure}{Figure}{Figures}
+
+\usepackage{xspace}
+%\newcommand{\eg}{e.\,g.\xspace}
+%\newcommand{\ie}{i.\,e.\xspace}
+\newcommand{\eg}{e.\,g.,\ }
+\newcommand{\ie}{i.\,e.,\ }
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{fancyvrb}
+%\DefineShortVerb[commandchars=\\\{\}]{\|}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+\newcommand{\ImportTok}[1]{{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+\newcommand{\BuiltInTok}[1]{{#1}}
+\newcommand{\ExtensionTok}[1]{{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex,
+              colorlinks=true,
+              linkcolor=blue]{hyperref}
+\else
+%  \usepackage[unicode=true,
+%              colorlinks=true,
+%              linkcolor=blue]{hyperref}
+    %unobstrusive usage of hyperref
+    \ifnum\pdfoutput>0
+        \usepackage[
+        unicode=true,
+        %pdfauthor={},
+        %pdfsubject={},
+        %pdftitle={},
+        %pdfkeywords={},
+        bookmarks=false,
+        breaklinks=true,
+        colorlinks=true,
+        linkcolor=black,
+        citecolor=black,
+        urlcolor=black,
+        %pdfstartpage=19,
+        pdfpagelayout=SinglePage
+        ]{hyperref}
+        %enables correct jumping to figures when referencing
+        \usepackage[all]{hypcap}
+    \else
+        \usepackage{hyperref}
+    \fi
+\fi
+\hypersetup{breaklinks=true, pdfborder={0 0 0}}
+\setlength{\parindent}{15pt} % set to 0pt if you want no indent in the first line of a paragraph
+%\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{3}
+%\EndDefineVerbatimEnvironment{Highlighting}
+
+\raggedbottom % allow ragged page bottoms
+
+\def\tightlist{} % fix error when translating md lists to itemize
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+\title{TPMineria}
+%If Title is too long, use \titlerunning
+%\titlerunning{Short Title}
+%Single insitute
+\author{Zacarías F. Ojeda}
+
+%If there are too many authors, use \authorrunning
+%\authorrunning{First Author et al.}
+
+
+\institute{
+}
+
+%Multiple insitutes
+%Currently disabled
+%
+\iffalse
+\authorinfo{
+  
+}{
+}{
+  \{\}
+}
+\fi
+
+
+\maketitle
+
+
+
+Cargamos los datasets originales
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"./sentencias_1c.csv"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(mat) }\OperatorTok{|}\StringTok{ }\KeywordTok{toupper}\NormalTok{(mat)}\OperatorTok{==}\StringTok{"C"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\CommentTok{# solo incluir materia civil  }
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{mat) }
+
+\NormalTok{organismos <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"./organismos.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Inspección de los datos
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Sentencias Primera Instancia Original"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\rowcolors{2}{gray!6}{white}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-3}Sentencias Primera Instancia Original}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{l|l|l|r|l|l|l|l|l|r|r|r|l}
+\hiderowcolors
+\hline
+nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & justiciables & reccap & iep\\
+\hline
+\showrowcolors
+12858 & RESTRICCIONES A LA CAPACIDAD & S & 0 & 15/09/2015 & 28/11/2017 & 22/12/2017 & 19/02/2018 & 29/12/2017 & 7 & 1 & 0 & jdofam0002gch\\
+\hline
+11852/5 & INCIDENTE & S & 1 & 15/04/2015 & 19/09/2017 & 04/10/2017 & 19/10/2017 & 29/12/2017 & 6 & 3 & 0 & jdofam0002gch\\
+\hline
+12237 & ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & S & 1 & 03/12/2014 & 12/10/2017 & 13/12/2017 & 19/03/2018 & 29/12/2017 & 7 & 1 & 0 & jdofam0002gch\\
+\hline
+14440 & MEDIDA CAUTELAR (FAMILIA) & S & 0 & 21/04/2017 & 29/11/2017 & 18/12/2017 & 02/02/2018 & 29/12/2017 & 7 & 1 & 0 & jdofam0002gch\\
+\hline
+11507 & ORDINARIO DAÑOS Y PERJUICIOS & S & 1 & 13/03/2014 & 30/11/2017 & 02/02/2018 & 06/04/2018 & 29/12/2017 & 7 & 2 & 0 & jdofam0002gch\\
+\hline
+8133 & ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & S & 1 & 17/06/2010 & 16/03/2017 & 17/05/2017 & 28/07/2017 & 29/12/2017 & 7 & 2 & 0 & jdofam0002gch\\
+\hline
+\end{tabular}}
+\end{table}
+
+\rowcolors{2}{white}{white}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{organismos }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Organismos"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\rowcolors{2}{gray!6}{white}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-4}Organismos}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{r|l|l|l|l|l|l|r|l|l}
+\hiderowcolors
+\hline
+X1 & organismo & organismo\_descripcion & email\_oficial & fuero & circunscripcion & localidad & categoria & tipo & materia\\
+\hline
+\showrowcolors
+1 & jdocco0000dia & Jdo Civ y Com Lab & jdocyc-dia@jusentrerios.gov.ar & Civil y Comercial & Diamante & Diamante & NA & jdo & cco|lab\\
+\hline
+2 & jdocco0000fed & Jdo Civ y Com Lab Fam & jdocyc-fcion@jusentrerios.gov.ar & Civil y Comercial & Federación & Federación & NA & jdo & cco|fam|lab\\
+\hline
+3 & jdocco0000frl & Jdo Civ y Com Lab & jdocyc-fral@jusentrerios.gov.ar & Civil y Comercial & Federal & Federal & NA & jdo & cco|lab\\
+\hline
+4 & jdocco0000ssa & Jdo Civ y Com Lab Fam & jdocyclab-ssdor@jusentrerios.gov.ar & Civil y Comercial & San Salvador & San Salvador & NA & jdo & cco|fam|lab\\
+\hline
+5 & jdocco0000tal & Jdo Civ y Com -ccomp.Laboral & jdocyc-tala@jusentrerios.gov.ar & Civil y Comercial & Tala & Rosario del Tala & NA & jdo & cco|lab\\
+\hline
+6 & jdocco0000vic & Jdo Civ y Com -ccomp.Laboral & jdocyc-vic@jusentrerios.gov.ar & Civil y Comercial & Victoria & Victoria & NA & jdo & cco|lab\\
+\hline
+\end{tabular}}
+\end{table}
+
+\rowcolors{2}{white}{white}
+
+Quitamos los tipos de procesos \enquote{Monitorios}, ya que son de mero
+trámite y no interesan en el análisis
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"MONITORIO"}\NormalTok{, tproc))}
+\end{Highlighting}
+\end{Shaded}
+
+Calcula duracion como Fecha de Resolucion - Fecha de inicio
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{finicio =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{dmy}\NormalTok{(finicio)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{fres =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{dmy}\NormalTok{(fres)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{duracion =}\NormalTok{ fres }\OperatorTok{-}\StringTok{ }\NormalTok{finicio)}
+
+\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Sentencias con duración")}
+\end{Highlighting}
+\end{Shaded}
+
+\rowcolors{2}{gray!6}{white}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-6}Sentencias con duración}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{l|l|l|r|l|l|l|l|l|r|r|r|l|l}
+\hiderowcolors
+\hline
+nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & justiciables & reccap & iep & duracion\\
+\hline
+\showrowcolors
+12858 & RESTRICCIONES A LA CAPACIDAD & S & 0 & 2015-09-15 & 28/11/2017 & 22/12/2017 & 19/02/2018 & 2017-12-29 & 7 & 1 & 0 & jdofam0002gch & 836 days\\
+\hline
+11852/5 & INCIDENTE & S & 1 & 2015-04-15 & 19/09/2017 & 04/10/2017 & 19/10/2017 & 2017-12-29 & 6 & 3 & 0 & jdofam0002gch & 989 days\\
+\hline
+12237 & ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & S & 1 & 2014-12-03 & 12/10/2017 & 13/12/2017 & 19/03/2018 & 2017-12-29 & 7 & 1 & 0 & jdofam0002gch & 1122 days\\
+\hline
+14440 & MEDIDA CAUTELAR (FAMILIA) & S & 0 & 2017-04-21 & 29/11/2017 & 18/12/2017 & 02/02/2018 & 2017-12-29 & 7 & 1 & 0 & jdofam0002gch & 252 days\\
+\hline
+11507 & ORDINARIO DAÑOS Y PERJUICIOS & S & 1 & 2014-03-13 & 30/11/2017 & 02/02/2018 & 06/04/2018 & 2017-12-29 & 7 & 2 & 0 & jdofam0002gch & 1387 days\\
+\hline
+8133 & ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & S & 1 & 2010-06-17 & 16/03/2017 & 17/05/2017 & 28/07/2017 & 2017-12-29 & 7 & 2 & 0 & jdofam0002gch & 2752 days\\
+\hline
+\end{tabular}}
+\end{table}
+
+\rowcolors{2}{white}{white}
+
+Eliminamos filas que tienen datos invalidos de fecha (datos nulos o
+futuros por error de tipeo) Reemplazamos los datos NA de reccap por
+cero.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(finicio)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(fres)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(fres }\OperatorTok{<}\StringTok{ '2018-09-01'}\NormalTok{, finicio }\OperatorTok{<}\StringTok{ '2018-09-01'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Calcula los cuartiles de duración por cada tipo de proceso (tproc), y se
+clasifica en rapido / normal / demorado si duracion es mayor a media de
+tproc utilizando one hot encoding.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{demora <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(tproc) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{techo_rapido=}\KeywordTok{quantile}\NormalTok{(duracion, }\DataTypeTok{probs=}\FloatTok{0.25}\NormalTok{),}
+            \DataTypeTok{piso_demorado=}\KeywordTok{quantile}\NormalTok{(duracion, }\DataTypeTok{probs=}\FloatTok{0.75}\NormalTok{))}
+
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(demora, }\DataTypeTok{by=}\StringTok{"tproc"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rapido =}\NormalTok{ duracion }\OperatorTok{<=}\StringTok{ }\NormalTok{techo_rapido) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{normal =}\NormalTok{ duracion }\OperatorTok{>}\StringTok{ }\NormalTok{techo_rapido }\OperatorTok{&}\StringTok{ }\NormalTok{duracion }\OperatorTok{<}\StringTok{ }\NormalTok{piso_demorado) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{demorado =}\NormalTok{ duracion }\OperatorTok{>=}\StringTok{ }\NormalTok{piso_demorado) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{duracion, }\OperatorTok{-}\NormalTok{techo_rapido, }\OperatorTok{-}\NormalTok{piso_demorado) }\CommentTok{# quitando columnas temporales }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{tproc =} \KeywordTok{str_trunc}\NormalTok{(tproc, }\DecValTok{20}\NormalTok{))}\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Agregando columnas demora"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\rowcolors{2}{gray!6}{white}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-9}Agregando columnas demora}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{l|l|l|r|l|l|l|l|l|r|r|r|l|l|l|l}
+\hiderowcolors
+\hline
+nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & justiciables & reccap & iep & rapido & normal & demorado\\
+\hline
+\showrowcolors
+12858 & RESTRICCIONES A L... & S & 0 & 2015-09-15 & 28/11/2017 & 22/12/2017 & 19/02/2018 & 2017-12-29 & 7 & 1 & 0 & jdofam0002gch & FALSE & TRUE & FALSE\\
+\hline
+11852/5 & INCIDENTE & S & 1 & 2015-04-15 & 19/09/2017 & 04/10/2017 & 19/10/2017 & 2017-12-29 & 6 & 3 & 0 & jdofam0002gch & FALSE & FALSE & TRUE\\
+\hline
+12237 & ORDINARIO FILIACI... & S & 1 & 2014-12-03 & 12/10/2017 & 13/12/2017 & 19/03/2018 & 2017-12-29 & 7 & 1 & 0 & jdofam0002gch & FALSE & TRUE & FALSE\\
+\hline
+14440 & MEDIDA CAUTELAR (... & S & 0 & 2017-04-21 & 29/11/2017 & 18/12/2017 & 02/02/2018 & 2017-12-29 & 7 & 1 & 0 & jdofam0002gch & FALSE & FALSE & TRUE\\
+\hline
+11507 & ORDINARIO DAÑOS Y... & S & 1 & 2014-03-13 & 30/11/2017 & 02/02/2018 & 06/04/2018 & 2017-12-29 & 7 & 2 & 0 & jdofam0002gch & FALSE & TRUE & FALSE\\
+\hline
+8133 & ORDINARIO FILIACI... & S & 1 & 2010-06-17 & 16/03/2017 & 17/05/2017 & 28/07/2017 & 2017-12-29 & 7 & 2 & 0 & jdofam0002gch & FALSE & FALSE & TRUE\\
+\hline
+\end{tabular}}
+\end{table}
+
+\rowcolors{2}{white}{white}
+
+Agrega datos de organismos para tenerlos separados por columna,
+actualmente se encuentra en columna iep.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{organismos <-}\StringTok{ }\NormalTok{organismos }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(organismo, circunscripcion, localidad, materia)}
+
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(organismos, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{'iep'}\NormalTok{=}\StringTok{'organismo'}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Exploremos la variable capital reclamado para definir los rangos
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{histograma <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_histogram}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{log}\NormalTok{(reccap)))}
+
+\NormalTok{histograma}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+\end{verbatim}
+
+\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-11-1.pdf}
+
+Calculamos los cuartiles para ver si nos sirven para parametrizar
+(reccap)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\StringTok{'1º Curtil:'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "1º Curtil:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(}\KeywordTok{pull}\NormalTok{(sentencias_1c[,}\StringTok{'reccap'}\NormalTok{]),.}\DecValTok{25}\NormalTok{, }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 25% 
+##   0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\StringTok{'2º Curtil:'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "2º Curtil:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(}\KeywordTok{pull}\NormalTok{(sentencias_1c[,}\StringTok{'reccap'}\NormalTok{]),.}\DecValTok{50}\NormalTok{, }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 50% 
+##   0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\StringTok{'3º Curtil:'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "3º Curtil:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(}\KeywordTok{pull}\NormalTok{(sentencias_1c[,}\StringTok{'reccap'}\NormalTok{]),.}\DecValTok{75}\NormalTok{, }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 75% 
+##   0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#View(sentencias_1c)}
+\end{Highlighting}
+\end{Shaded}
+
+Como dos de los curtiles son cero, elimino los ceros y vuelvo a calcular
+los cuartiles.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#reccap_not_cero <- which(sentencias_1c$reccap != 0)}
+
+\KeywordTok{print}\NormalTok{(}\StringTok{'1º Curtil:'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "1º Curtil:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    25% 
+## 3181.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\StringTok{'2º Curtil:'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "2º Curtil:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    50% 
+## 6271.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\StringTok{'3º Curtil:'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "3º Curtil:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     75% 
+## 8948.75
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{capmedio <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(}\KeywordTok{pull}\NormalTok{(sentencias_1c[,}\StringTok{'reccap'}\NormalTok{]))}
+
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_0 =}\NormalTok{ reccap }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_1 =}\NormalTok{ (reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap}\OperatorTok{!=}\DecValTok{0}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_2 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{))) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_3 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{))) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_4 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{))) }
+\end{Highlighting}
+\end{Shaded}
+
+Separo la columna justiciables en 4 rangos para poder aplicar apriori.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables0_1 =}\NormalTok{ justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{2}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables2_3 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{4}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables4_5 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{3}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{6}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables6_7 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{5}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{8}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables8_9 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{7}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{10}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables10_N =}\NormalTok{ justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{9}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Separamos Localidad y Circunscripcion en columnas.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{localidad =} \KeywordTok{as.factor}\NormalTok{(localidad))}
+\end{Highlighting}
+\end{Shaded}
+
+Convertimos columna tproc en categórica, esto es requerido por el
+algoritmo
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{tproc =} \KeywordTok{as.factor}\NormalTok{(tproc)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{circunscripcion =} \KeywordTok{as.factor}\NormalTok{(circunscripcion)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{materia =} \KeywordTok{as.factor}\NormalTok{(materia))}
+\end{Highlighting}
+\end{Shaded}
+
+Tomos solamente las columnas tipo booleanos y categóricas.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentencias_final <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{nro, }\OperatorTok{-}\NormalTok{as, }\OperatorTok{-}\NormalTok{ccon, }\OperatorTok{-}\NormalTok{finicio, }\OperatorTok{-}\NormalTok{fres, }\OperatorTok{-}\NormalTok{fdesp, }\OperatorTok{-}\NormalTok{fvenc1, }\OperatorTok{-}\NormalTok{fvenc2, }\OperatorTok{-}\NormalTok{tres, }\OperatorTok{-}\NormalTok{justiciables, }\OperatorTok{-}\NormalTok{reccap, }\OperatorTok{-}\NormalTok{iep, }\OperatorTok{-}\NormalTok{localidad)}
+
+\NormalTok{sentencias_final }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Tabla final a utilizar en el algoritmo apriori"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\rowcolors{2}{gray!6}{white}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-17}Tabla final a utilizar en el algoritmo apriori}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l}
+\hiderowcolors
+\hline
+tproc & rapido & normal & demorado & circunscripcion & materia & reccap\_0 & reccap\_1 & reccap\_2 & reccap\_3 & reccap\_4 & justiciables0\_1 & justiciables2\_3 & justiciables4\_5 & justiciables6\_7 & justiciables8\_9 & justiciables10\_N\\
+\hline
+\showrowcolors
+RESTRICCIONES A LA CAPACIDAD & FALSE & TRUE & FALSE & Gualeguaychú & fam|pen & TRUE & FALSE & FALSE & FALSE & FALSE & TRUE & FALSE & FALSE & FALSE & FALSE & FALSE\\
+\hline
+INCIDENTE & FALSE & FALSE & TRUE & Gualeguaychú & fam|pen & TRUE & FALSE & FALSE & FALSE & FALSE & FALSE & TRUE & FALSE & FALSE & FALSE & FALSE\\
+\hline
+ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & TRUE & FALSE & Gualeguaychú & fam|pen & TRUE & FALSE & FALSE & FALSE & FALSE & TRUE & FALSE & FALSE & FALSE & FALSE & FALSE\\
+\hline
+MEDIDA CAUTELAR (FAMILIA) & FALSE & FALSE & TRUE & Gualeguaychú & fam|pen & TRUE & FALSE & FALSE & FALSE & FALSE & TRUE & FALSE & FALSE & FALSE & FALSE & FALSE\\
+\hline
+ORDINARIO DAÑOS Y PERJUICIOS & FALSE & TRUE & FALSE & Gualeguaychú & fam|pen & TRUE & FALSE & FALSE & FALSE & FALSE & FALSE & TRUE & FALSE & FALSE & FALSE & FALSE\\
+\hline
+ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguaychú & fam|pen & TRUE & FALSE & FALSE & FALSE & FALSE & FALSE & TRUE & FALSE & FALSE & FALSE & FALSE\\
+\hline
+\end{tabular}}
+\end{table}
+
+\rowcolors{2}{white}{white}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rules <-}\StringTok{ }\KeywordTok{apriori}\NormalTok{(sentencias_final, }\DataTypeTok{parameter =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{supp=}\FloatTok{0.01}\NormalTok{, }\DataTypeTok{conf=}\FloatTok{0.7}\NormalTok{, }\DataTypeTok{minlen=}\DecValTok{2}\NormalTok{), }\DataTypeTok{appearance =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{rhs=}\KeywordTok{c}\NormalTok{(}\StringTok{"demorado"}\NormalTok{, }\StringTok{"rapido"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Apriori
+## 
+## Parameter specification:
+##  confidence minval smax arem  aval originalSupport maxtime support minlen
+##         0.7    0.1    1 none FALSE            TRUE       5    0.01      2
+##  maxlen target   ext
+##      10  rules FALSE
+## 
+## Algorithmic control:
+##  filter tree heap memopt load sort verbose
+##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+## 
+## Absolute minimum support count: 115 
+## 
+## set item appearances ...[2 item(s)] done [0.00s].
+## set transactions ...[275 item(s), 11576 transaction(s)] done [0.00s].
+## sorting and recoding items ... [46 item(s)] done [0.00s].
+## creating transaction tree ... done [0.00s].
+## checking subsets of size 1 2 3 4 5 6 done [0.00s].
+## writing ... [8 rule(s)] done [0.00s].
+## creating S4 object  ... done [0.00s].
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(rules)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## set of 8 rules
+## 
+## rule length distribution (lhs + rhs):sizes
+## 3 4 5 6 
+## 1 3 3 1 
+## 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     3.0     4.0     4.5     4.5     5.0     6.0 
+## 
+## summary of quality measures:
+##     support          confidence          lift           count      
+##  Min.   :0.01002   Min.   :0.7134   Min.   :2.674   Min.   :116.0  
+##  1st Qu.:0.01002   1st Qu.:0.7147   1st Qu.:2.679   1st Qu.:116.0  
+##  Median :0.01006   Median :0.7367   Median :2.762   Median :116.5  
+##  Mean   :0.01009   Mean   :0.7362   Mean   :2.760   Mean   :116.8  
+##  3rd Qu.:0.01013   3rd Qu.:0.7582   3rd Qu.:2.842   3rd Qu.:117.2  
+##  Max.   :0.01019   Max.   :0.7582   Max.   :2.842   Max.   :118.0  
+## 
+## mining info:
+##              data ntransactions support confidence
+##  sentencias_final         11576    0.01        0.7
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{inspect}\NormalTok{(rules[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     lhs                          rhs           support confidence     lift count
+## [1] {circunscripcion=Uruguay,                                                   
+##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
+## [2] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
+## [3] {circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
+## [4] {circunscripcion=Uruguay,                                                   
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+## [5] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
+## [6] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+## [7] {circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+## [8] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{top.confidence <-}\StringTok{ }\KeywordTok{sort}\NormalTok{(rules, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{na.last =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{by =} \StringTok{"confidence"}\NormalTok{)}
+\KeywordTok{inspect}\NormalTok{(top.confidence[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     lhs                          rhs           support confidence     lift count
+## [1] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
+## [2] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
+## [3] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+## [4] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+## [5] {circunscripcion=Uruguay,                                                   
+##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
+## [6] {circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
+## [7] {circunscripcion=Uruguay,                                                   
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+## [8] {circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{top.support <-}\StringTok{ }\KeywordTok{sort}\NormalTok{(rules, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{na.last =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{by =} \StringTok{"support"}\NormalTok{)}
+\KeywordTok{inspect}\NormalTok{(top.support[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     lhs                          rhs           support confidence     lift count
+## [1] {circunscripcion=Uruguay,                                                   
+##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
+## [2] {circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
+## [3] {circunscripcion=Uruguay,                                                   
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+## [4] {circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+## [5] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
+## [6] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
+## [7] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+## [8] {tproc=APREMIO,                                                             
+##      circunscripcion=Uruguay,                                                   
+##      materia=paz,                                                               
+##      reccap_1,                                                                  
+##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(arulesViz)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: grid
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(rules, }\DataTypeTok{method =} \StringTok{"grouped"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics[height=0.4\textheight]{TPMineria_files/figure-latex/unnamed-chunk-19-1}
+
+\end{document}
