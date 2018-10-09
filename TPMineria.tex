@@ -186,7 +186,7 @@
 %If Title is too long, use \titlerunning
 %\titlerunning{Short Title}
 %Single insitute
-\author{Zacarías F. Ojeda}
+\author{Bodean, Emiliano \& Ojeda, Zacarías}
 
 %If there are too many authors, use \authorrunning
 %\authorrunning{First Author et al.}
@@ -528,8 +528,8 @@ Calculamos los cuartiles para ver si nos sirven para parametrizar
 \end{Highlighting}
 \end{Shaded}
 
-Como dos de los curtiles son cero, elimino los ceros y vuelvo a calcular
-los cuartiles.
+Como los curtiles son cero, elimino los ceros y vuelvo a calcular los
+cuartiles.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -609,7 +609,7 @@ los cuartiles.
 \end{Highlighting}
 \end{Shaded}
 
-Separo la columna justiciables en 4 rangos para poder aplicar apriori.
+Separo la columna justiciables en 6 rangos para poder aplicar apriori.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -688,7 +688,7 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{rules <-}\StringTok{ }\KeywordTok{apriori}\NormalTok{(sentencias_final, }\DataTypeTok{parameter =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{supp=}\FloatTok{0.01}\NormalTok{, }\DataTypeTok{conf=}\FloatTok{0.7}\NormalTok{, }\DataTypeTok{minlen=}\DecValTok{2}\NormalTok{), }\DataTypeTok{appearance =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{rhs=}\KeywordTok{c}\NormalTok{(}\StringTok{"demorado"}\NormalTok{, }\StringTok{"rapido"}\NormalTok{)))}
+\NormalTok{rules <-}\StringTok{ }\KeywordTok{apriori}\NormalTok{(sentencias_final, }\DataTypeTok{parameter =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{supp=}\FloatTok{0.001}\NormalTok{, }\DataTypeTok{conf=}\FloatTok{0.5}\NormalTok{, }\DataTypeTok{minlen=}\DecValTok{2}\NormalTok{), }\DataTypeTok{appearance =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{rhs=}\KeywordTok{c}\NormalTok{(}\StringTok{"demorado"}\NormalTok{, }\StringTok{"rapido"}\NormalTok{)))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -697,7 +697,7 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 ## 
 ## Parameter specification:
 ##  confidence minval smax arem  aval originalSupport maxtime support minlen
-##         0.7    0.1    1 none FALSE            TRUE       5    0.01      2
+##         0.5    0.1    1 none FALSE            TRUE       5   0.001      2
 ##  maxlen target   ext
 ##      10  rules FALSE
 ## 
@@ -705,14 +705,14 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 ##  filter tree heap memopt load sort verbose
 ##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
 ## 
-## Absolute minimum support count: 115 
+## Absolute minimum support count: 11 
 ## 
 ## set item appearances ...[2 item(s)] done [0.00s].
 ## set transactions ...[275 item(s), 11576 transaction(s)] done [0.00s].
-## sorting and recoding items ... [46 item(s)] done [0.00s].
+## sorting and recoding items ... [105 item(s)] done [0.00s].
 ## creating transaction tree ... done [0.00s].
-## checking subsets of size 1 2 3 4 5 6 done [0.00s].
-## writing ... [8 rule(s)] done [0.00s].
+## checking subsets of size 1 2 3 4 5 6 done [0.02s].
+## writing ... [310 rule(s)] done [0.00s].
 ## creating S4 object  ... done [0.00s].
 \end{verbatim}
 
@@ -723,28 +723,52 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 \end{Shaded}
 
 \begin{verbatim}
-## set of 8 rules
+## set of 310 rules
 ## 
 ## rule length distribution (lhs + rhs):sizes
-## 3 4 5 6 
-## 1 3 3 1 
+##   2   3   4   5   6 
+##   2  47 126 107  28 
 ## 
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##     3.0     4.0     4.5     4.5     5.0     6.0 
+##   2.000   4.000   4.000   4.361   5.000   6.000 
 ## 
 ## summary of quality measures:
-##     support          confidence          lift           count      
-##  Min.   :0.01002   Min.   :0.7134   Min.   :2.674   Min.   :116.0  
-##  1st Qu.:0.01002   1st Qu.:0.7147   1st Qu.:2.679   1st Qu.:116.0  
-##  Median :0.01006   Median :0.7367   Median :2.762   Median :116.5  
-##  Mean   :0.01009   Mean   :0.7362   Mean   :2.760   Mean   :116.8  
-##  3rd Qu.:0.01013   3rd Qu.:0.7582   3rd Qu.:2.842   3rd Qu.:117.2  
-##  Max.   :0.01019   Max.   :0.7582   Max.   :2.842   Max.   :118.0  
+##     support           confidence          lift           count      
+##  Min.   :0.001037   Min.   :0.5000   Min.   :1.837   Min.   : 12.0  
+##  1st Qu.:0.001296   1st Qu.:0.5385   1st Qu.:2.004   1st Qu.: 15.0  
+##  Median :0.001814   Median :0.6197   Median :2.321   Median : 21.0  
+##  Mean   :0.003352   Mean   :0.6674   Mean   :2.474   Mean   : 38.8  
+##  3rd Qu.:0.003455   3rd Qu.:0.7582   3rd Qu.:2.840   3rd Qu.: 40.0  
+##  Max.   :0.014599   Max.   :1.0000   Max.   :3.749   Max.   :169.0  
 ## 
 ## mining info:
 ##              data ntransactions support confidence
-##  sentencias_final         11576    0.01        0.7
+##  sentencias_final         11576   0.001        0.5
 \end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(rules)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## To reduce overplotting, jitter is added! Use jitter = 0 to prevent jitter.
+\end{verbatim}
+
+\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-19-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(rules, }\DataTypeTok{method =} \StringTok{"two-key plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## To reduce overplotting, jitter is added! Use jitter = 0 to prevent jitter.
+\end{verbatim}
+
+\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-20-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -753,35 +777,21 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 \end{Shaded}
 
 \begin{verbatim}
-##     lhs                          rhs           support confidence     lift count
-## [1] {circunscripcion=Uruguay,                                                   
-##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
-## [2] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
-## [3] {circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
-## [4] {circunscripcion=Uruguay,                                                   
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
-## [5] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
-## [6] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
-## [7] {circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
-## [8] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+##     lhs                                          rhs            support confidence     lift count
+## [1] {circunscripcion=San Salvador}            => {rapido}   0.002505183  0.5000000 1.836877    29
+## [2] {justiciables10_N}                        => {demorado} 0.004060124  0.5164835 1.936144    47
+## [3] {tproc=EJECUTIVO,                                                                            
+##      circunscripcion=San Salvador}            => {rapido}   0.001295784  0.5555556 2.040975    15
+## [4] {circunscripcion=San Salvador,                                                               
+##      materia=paz}                             => {rapido}   0.001814098  0.6176471 2.269084    21
+## [5] {circunscripcion=San Salvador,                                                               
+##      reccap_0}                                => {rapido}   0.002418798  0.5714286 2.099288    28
+## [6] {circunscripcion=San Salvador,                                                               
+##      justiciables2_3}                         => {rapido}   0.002159641  0.5555556 2.040975    25
+## [7] {tproc=DIVORCIO POR MUTUO CONSENTIMIENTO,                                                    
+##      circunscripcion=Gualeguay}               => {rapido}   0.001641327  0.9047619 3.323873    19
+## [8] {materia=cco,                                                                                
+##      justiciables10_N}                        => {demorado} 0.002764340  0.5000000 1.874352    32
 \end{verbatim}
 
 \begin{Shaded}
@@ -792,35 +802,39 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 \end{Shaded}
 
 \begin{verbatim}
-##     lhs                          rhs           support confidence     lift count
-## [1] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
-## [2] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
+##     lhs                         rhs            support confidence     lift count
+## [1] {tproc=ACCION DE AMPARO,                                                    
+##      circunscripcion=Nogoyá,                                                    
+##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
+## [2] {tproc=ACCION DE AMPARO,                                                    
+##      circunscripcion=Nogoyá,                                                    
 ##      materia=paz,                                                               
-##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
-## [3] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
+##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
+## [3] {tproc=ACCION DE AMPARO,                                                    
+##      circunscripcion=Nogoyá,                                                    
+##      reccap_0,                                                                  
+##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
+## [4] {tproc=EJECUTIVO,                                                           
+##      circunscripcion=Paraná,                                                    
 ##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
-## [4] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
+##      justiciables0_1}        => {rapido}   0.001295784  1.0000000 3.673754    15
+## [5] {tproc=ACCION DE AMPARO,                                                    
+##      circunscripcion=Nogoyá,                                                    
 ##      materia=paz,                                                               
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
-## [5] {circunscripcion=Uruguay,                                                   
-##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
-## [6] {circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
-## [7] {circunscripcion=Uruguay,                                                   
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
-## [8] {circunscripcion=Uruguay,                                                   
+##      reccap_0,                                                                  
+##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
+## [6] {tproc=EJECUTIVO,                                                           
+##      circunscripcion=Paraná,                                                    
 ##      materia=paz,                                                               
 ##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
+##      justiciables0_1}        => {rapido}   0.001295784  1.0000000 3.673754    15
+## [7] {tproc=ACCION DE AMPARO,                                                    
+##      circunscripcion=Nogoyá,                                                    
+##      materia=paz}            => {demorado} 0.002591569  0.9677419 3.627779    30
+## [8] {tproc=ACCION DE AMPARO,                                                    
+##      circunscripcion=Nogoyá,                                                    
+##      materia=paz,                                                               
+##      reccap_0}               => {demorado} 0.002591569  0.9677419 3.627779    30
 \end{verbatim}
 
 \begin{Shaded}
@@ -831,53 +845,28 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 \end{Shaded}
 
 \begin{verbatim}
-##     lhs                          rhs           support confidence     lift count
-## [1] {circunscripcion=Uruguay,                                                   
-##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
-## [2] {circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1}                => {demorado} 0.01019350  0.7151515 2.680892   118
-## [3] {circunscripcion=Uruguay,                                                   
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
-## [4] {circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01010712  0.7134146 2.674381   117
-## [5] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
-## [6] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1}                => {demorado} 0.01002073  0.7581699 2.842155   116
-## [7] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
-## [8] {tproc=APREMIO,                                                             
-##      circunscripcion=Uruguay,                                                   
-##      materia=paz,                                                               
-##      reccap_1,                                                                  
-##      justiciables2_3}         => {demorado} 0.01002073  0.7581699 2.842155   116
+##     lhs                               rhs           support confidence     lift count
+## [1] {tproc=APREMIO,                                                                  
+##      reccap_1}                     => {demorado} 0.01459917  0.5577558 2.090862   169
+## [2] {tproc=APREMIO,                                                                  
+##      reccap_1,                                                                       
+##      justiciables2_3}              => {demorado} 0.01451279  0.5600000 2.099275   168
+## [3] {tproc=APREMIO,                                                                  
+##      materia=paz,                                                                    
+##      reccap_1}                     => {demorado} 0.01442640  0.5585284 2.093758   167
+## [4] {tproc=APREMIO,                                                                  
+##      materia=paz,                                                                    
+##      reccap_1,                                                                       
+##      justiciables2_3}              => {demorado} 0.01434001  0.5608108 2.102314   166
+## [5] {tproc=APREMIO,                                                                  
+##      reccap_0}                     => {rapido}   0.01416724  0.6007326 2.206944   164
+## [6] {circunscripcion=Uruguay,                                                        
+##      justiciables2_3}              => {demorado} 0.01338977  0.5000000 1.874352   155
+## [7] {tproc=APREMIO,                                                                  
+##      reccap_0,                                                                       
+##      justiciables2_3}              => {rapido}   0.01321700  0.6023622 2.212931   153
+## [8] {tproc=EJECUTIVO,                                                                
+##      circunscripcion=Gualeguaychú} => {demorado} 0.01278507  0.5362319 2.010175   148
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(arulesViz)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Loading required package: grid
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{plot}\NormalTok{(rules, }\DataTypeTok{method =} \StringTok{"grouped"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics[height=0.4\textheight]{TPMineria_files/figure-latex/unnamed-chunk-19-1}
 
 \end{document}

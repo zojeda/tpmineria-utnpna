@@ -3,6 +3,12 @@ title: "TPMineria"
 author: "Bodean, Emiliano & Ojeda, Zacarías"
 date: "8/25/2018"
 output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    md_extensions: +footnotes
+    latex_engine: xelatex
+    template: lncs-template.tex
   html_document:
     css: lncs.css
     md_extensions: +footnotes
@@ -10,12 +16,6 @@ output:
     self_contained: no
     template: lncs-template.html
     theme: null
-  pdf_document:
-    fig_caption: yes
-    keep_tex: yes
-    md_extensions: +footnotes
-    latex_engine: xelatex
-    template: lncs-template.tex
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
@@ -34,6 +34,8 @@ if(!require("arules")) install.packages("arules")
 library("arules")
 if(!require("kableExtra")) install.packages("kableExtra")
 library(kableExtra)
+if(!require("arulesViz")) install.packages('arulesViz')
+library(arulesViz)
 ```
 
 ```{r, include=FALSE}
@@ -163,7 +165,7 @@ quantile(pull(sentencias_1c[,'reccap']),.75, na.rm = TRUE)
 
 #View(sentencias_1c)
 ```
-Como dos de los curtiles son cero, elimino los ceros y vuelvo a calcular los cuartiles.
+Como los curtiles son cero, elimino los ceros y vuelvo a calcular los cuartiles. 
 
 ```{r}
 #reccap_not_cero <- which(sentencias_1c$reccap != 0)
@@ -186,7 +188,7 @@ sentencias_1c <- sentencias_1c %>%
 
 ```
 
-Separo la columna justiciables en 4 rangos para poder aplicar apriori.
+Separo la columna justiciables en 6 rangos para poder aplicar apriori.
 
 ```{r}
 
@@ -227,23 +229,50 @@ sentencias_final %>%
   mostrar(caption = "Tabla final a utilizar en el algoritmo apriori")
 ```
 
+
 ```{r}
 
-rules <- apriori(sentencias_final, parameter = list(supp=0.01, conf=0.7, minlen=2), appearance = list(rhs=c("demorado", "rapido")))
+rules <- apriori(sentencias_final, parameter = list(supp=0.001, conf=0.5, minlen=2), appearance = list(rhs=c("demorado", "rapido")))
 summary(rules)
-inspect(rules[1:8])
-
-top.confidence <- sort(rules, decreasing = TRUE, na.last = NA, by = "confidence")
-inspect(top.confidence[1:8])
-
-top.support <- sort(rules, decreasing = TRUE, na.last = NA, by = "support")
-inspect(top.support[1:8])
 
 
 ```
 
 
 ```{r}
-library(arulesViz)
+
+
 plot(rules)
+
+
+```
+
+```{r}
+
+plot(rules, method = "two-key plot")
+
+```
+
+
+
+```{r}
+
+inspect(rules[1:8])
+
+```
+
+
+```{r}
+top.confidence <- sort(rules, decreasing = TRUE, na.last = NA, by = "confidence")
+inspect(top.confidence[1:8])
+
+
+```
+
+
+```{r}
+
+top.support <- sort(rules, decreasing = TRUE, na.last = NA, by = "support")
+inspect(top.support[1:8])
+
 ```
