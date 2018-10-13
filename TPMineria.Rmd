@@ -50,8 +50,17 @@ mostrar.data.frame  <- function (.df, caption) {
     kable(caption = caption) %>% 
     kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
 }
-```
 
+```
+# Resumen
+
+
+# Introducción
+
+
+# Procesamietno de Datos
+
+## Lectura de Datasets
 
 Cargamos los datasets originales 
 
@@ -62,6 +71,7 @@ sentencias_1c <- read_csv("./sentencias_1c.csv") %>%
 
 organismos <- read_csv("./organismos.csv")
 ```
+## Inspección y "limpieza" de los datos
 
 Inspección de los datos
 
@@ -145,7 +155,7 @@ sentencias_1c <- sentencias_1c %>%
 
 Exploremos la variable capital reclamado para definir los rangos
 
-```{r}
+```{r, echo=FALSE, fig.height=4.5, fig.width=5}
 histograma <- sentencias_1c %>% 
   ggplot() +
   geom_histogram(aes(x=log(reccap)))
@@ -229,6 +239,7 @@ sentencias_final %>%
   mostrar(caption = "Tabla final a utilizar en el algoritmo apriori")
 ```
 
+# Generación de Reglas
 
 ```{r}
 
@@ -238,22 +249,21 @@ summary(rules)
 
 ```
 
+Graficamos
 
-```{r}
-
+```{r echo=FALSE, fig.height=4.5, fig.width=5, message=FALSE, warning=FALSE}
 
 plot(rules)
 
-
 ```
 
-```{r}
+```{r, echo=FALSE, fig.height=4.5, fig.width=5}
 
 plot(rules, method = "two-key plot")
 
 ```
 
-
+Realizamos un inspect de las primeras reglas, vemos que hay reglas que no son de interes.
 
 ```{r}
 
@@ -261,6 +271,7 @@ inspect(rules[1:8])
 
 ```
 
+Volvemos a visulizar ordenas por soporte y confianza
 
 ```{r}
 top.confidence <- sort(rules, decreasing = TRUE, na.last = NA, by = "confidence")
@@ -276,3 +287,19 @@ top.support <- sort(rules, decreasing = TRUE, na.last = NA, by = "support")
 inspect(top.support[1:8])
 
 ```
+
+
+# Resultados / Discusión
+
+...
+
+
+# Conclusiones
+
+...
+
+# Referencias
+
+...
+
+
