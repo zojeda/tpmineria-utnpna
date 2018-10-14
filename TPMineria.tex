@@ -216,33 +216,62 @@
 
 \section{Introducción}\label{introduccion}
 
-\section{Procesamietno de Datos}\label{procesamietno-de-datos}
+En el trabajo se realiza un estudio sobre sentencias judiciales, en el
+análisis se pretende evaluar los tiempos de demora de la sentencias.
+Detectando patrones comunes, o causas, entre las diferentes sentencias
+que resultan con demoras significativas.
+
+Se considera la demora como el tiempo entre que inicia el proceso y sale
+la resolución correspondiente.
+
+\section{Procesamiento de Datos}\label{procesamiento-de-datos}
 
 \subsection{Lectura de Datasets}\label{lectura-de-datasets}
 
-Cargamos los datasets originales
+Cargamos los datasets originales. Contamos con un listado de 25279
+sentencias las cuales tiene los siguientes datos de interés:
+
+\begin{itemize}
+\tightlist
+\item
+  Tipo de Proceso.
+\item
+  Fecha de Inicio y Fecha de Resolución.
+\item
+  Cantidad de Justiciable.
+\item
+  Circunscripción.
+\item
+  Materia.
+\item
+  Capital Reclamado.
+\item
+  Organismos.
+\end{itemize}
+
+Este último campo, organismos, esta con un código interno (iep) por lo
+que se importa otra tabla para traducir este código.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{sentencias_1c <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"./sentencias_1c.csv"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(mat) }\OperatorTok{|}\StringTok{ }\KeywordTok{toupper}\NormalTok{(mat)}\OperatorTok{==}\StringTok{"C"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\CommentTok{# solo incluir materia civil  }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(mat) }\OperatorTok{|}\StringTok{ }\KeywordTok{toupper}\NormalTok{(mat)}\OperatorTok{==}\StringTok{"C"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# solo incluir materia civil  }
 \StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{mat) }
 
 \NormalTok{organismos <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"./organismos.csv"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\subsection{\texorpdfstring{Inspección y \enquote{limpieza} de los
-datos}{Inspección y limpieza de los datos}}\label{inspeccion-y-limpieza-de-los-datos}
+\subsection{Inspección y categorización de los
+datos}\label{inspeccion-y-categorizacion-de-los-datos}
 
-Inspección de los datos
+A continuación hacemos una inspección de los datos para poder
+categorizarlos en rangos que nos sean útiles para la generación de
+reglas de asociación.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Sentencias Primera Instancia Original"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+En las siguientes tablas se ven fragmentos de las tablas de sentencias y
+organismos son procesar.
 
 \rowcolors{2}{gray!6}{white}
 
@@ -273,13 +302,6 @@ nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & just
 \end{table}
 
 \rowcolors{2}{white}{white}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{organismos }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Organismos"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \rowcolors{2}{gray!6}{white}
 
@@ -312,7 +334,7 @@ X1 & organismo & organismo\_descripcion & email\_oficial & fuero & circunscripci
 \rowcolors{2}{white}{white}
 
 Quitamos los tipos de procesos \enquote{Monitorios}, ya que son de mero
-trámite y no interesan en el análisis
+trámite y no interesan en el análisis. Se eliminan 13687registros.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -321,19 +343,9 @@ trámite y no interesan en el análisis
 \end{Highlighting}
 \end{Shaded}
 
-Calcula duracion como Fecha de Resolucion - Fecha de inicio
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{finicio =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{dmy}\NormalTok{(finicio)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{fres =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{dmy}\NormalTok{(fres)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{duracion =}\NormalTok{ fres }\OperatorTok{-}\StringTok{ }\NormalTok{finicio)}
-
-\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Sentencias con duración")}
-\end{Highlighting}
-\end{Shaded}
+Calcula duración como Fecha de Resolución menos Fecha de inicio,
+generamos una nueva columna \enquote{duracion} y mostramos un fragmento
+de la nueva tabla en la siguiente gráfica.
 
 \rowcolors{2}{gray!6}{white}
 
@@ -365,9 +377,8 @@ nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & just
 
 \rowcolors{2}{white}{white}
 
-Eliminamos filas que tienen datos invalidos de fecha (datos nulos o
-futuros por error de tipeo) Reemplazamos los datos NA de reccap por
-cero.
+Eliminamos filas que tienen datos inválidos de fecha (datos nulos o
+futuros por error de tipeo). Se eliminan 16 registros.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -378,9 +389,11 @@ cero.
 \end{Highlighting}
 \end{Shaded}
 
-Calcula los cuartiles de duración por cada tipo de proceso (tproc), y se
-clasifica en rapido / normal / demorado si duracion es mayor a media de
-tproc utilizando one hot encoding.
+Se calculan los cuartiles 25\% y 75\% de duración por cada tipo de
+proceso (tproc), y con estos parámetros se clasifican en rápido, normal
+o demorado si duración se encuentra en cada uno de los rangos definidos.
+* Rápido: duración menor al cuartil 25\% * Normal: duración entre el
+cuartil 25\% y el 75\%. * Demorado: duración mayor al cuartil 75\%.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -392,19 +405,16 @@ tproc utilizando one hot encoding.
 \NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{left_join}\NormalTok{(demora, }\DataTypeTok{by=}\StringTok{"tproc"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rapido =}\NormalTok{ duracion }\OperatorTok{<=}\StringTok{ }\NormalTok{techo_rapido) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{normal =}\NormalTok{ duracion }\OperatorTok{>}\StringTok{ }\NormalTok{techo_rapido }\OperatorTok{&}\StringTok{ }\NormalTok{duracion }\OperatorTok{<}\StringTok{ }\NormalTok{piso_demorado) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{normal =}\NormalTok{ duracion }\OperatorTok{>}\StringTok{ }\NormalTok{techo_rapido }\OperatorTok{&}\StringTok{ }\NormalTok{duracion }
+         \OperatorTok{<}\StringTok{ }\NormalTok{piso_demorado) }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{demorado =}\NormalTok{ duracion }\OperatorTok{>=}\StringTok{ }\NormalTok{piso_demorado) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{duracion, }\OperatorTok{-}\NormalTok{techo_rapido, }\OperatorTok{-}\NormalTok{piso_demorado) }\CommentTok{# quitando columnas temporales }
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{duracion, }\OperatorTok{-}\NormalTok{techo_rapido, }\OperatorTok{-}\NormalTok{piso_demorado) }
+\CommentTok{# quitando columnas temporales }
 \end{Highlighting}
 \end{Shaded}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{tproc =} \KeywordTok{str_trunc}\NormalTok{(tproc, }\DecValTok{20}\NormalTok{))}\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Agregando columnas demora"}\NormalTok{) }
-\end{Highlighting}
-\end{Shaded}
+En al siguiente tabla se muestra un fragmento de los datos con los
+cambios realizados.
 
 \rowcolors{2}{gray!6}{white}
 
@@ -436,8 +446,8 @@ nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & just
 
 \rowcolors{2}{white}{white}
 
-Agrega datos de organismos para tenerlos separados por columna,
-actualmente se encuentra en columna iep.
+Se agregan los datos de los organismos para tenerlos separados por
+columna, actualmente el dato se encontraba en columna iep.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -449,16 +459,13 @@ actualmente se encuentra en columna iep.
 \end{Highlighting}
 \end{Shaded}
 
-Exploremos la variable capital reclamado para definir los rangos
-
-\begin{verbatim}
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-\end{verbatim}
+Se explora la variable capital reclamado, para definir los rangos y
+categorizar, graficando un histograma del logaritmo.
 
 \includegraphics{TPMineria_files/figure-latex/unnamed-chunk-11-1.pdf}
 
-Calculamos los cuartiles para ver si nos sirven para parametrizar
-(reccap)
+Se calculan los cuartiles para evaluar si sirven para parametrizar el
+capital reclamado (reccap).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -529,8 +536,8 @@ Calculamos los cuartiles para ver si nos sirven para parametrizar
 \end{Highlighting}
 \end{Shaded}
 
-Como los curtiles son cero, elimino los ceros y vuelvo a calcular los
-cuartiles.
+Como los todos los cuartiles obtenidos son cero, se vuelven a calcular
+los cuartiles sin los datos ceros.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -603,41 +610,63 @@ cuartiles.
 
 \NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_0 =}\NormalTok{ reccap }\OperatorTok{==}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_1 =}\NormalTok{ (reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap}\OperatorTok{!=}\DecValTok{0}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_2 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{))) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_3 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{))) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_4 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{))) }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_1 =}\NormalTok{ (reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(}
+\NormalTok{    sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap}\OperatorTok{!=}\DecValTok{0}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_2 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(}
+\NormalTok{    sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{25}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(}
+\NormalTok{      sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{))) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_3 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(}
+\NormalTok{    sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{50}\NormalTok{)) }\OperatorTok{&}\StringTok{ }\NormalTok{(reccap }\OperatorTok{<}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(}
+\NormalTok{      sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{))) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{reccap_4 =}\NormalTok{ (reccap }\OperatorTok{>=}\StringTok{ }\KeywordTok{quantile}\NormalTok{(}\KeywordTok{which}\NormalTok{(}
+\NormalTok{    sentencias_1c}\OperatorTok{$}\NormalTok{reccap }\OperatorTok{!=}\StringTok{ }\DecValTok{0}\NormalTok{),.}\DecValTok{75}\NormalTok{))) }
 \end{Highlighting}
 \end{Shaded}
 
-Separo la columna justiciables en 6 rangos para poder aplicar apriori.
+A partir de los cuartiles obtenidos, se generan las siguientes
+categorías:
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables0_1 =}\NormalTok{ justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{2}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables2_3 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{4}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables4_5 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{3}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{6}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables6_7 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{5}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{8}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables8_9 =}\NormalTok{ (justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{7}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{(justiciables }\OperatorTok{<}\StringTok{ }\DecValTok{10}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{justiciables10_N =}\NormalTok{ justiciables }\OperatorTok{>}\StringTok{ }\DecValTok{9}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+\begin{itemize}
+\tightlist
+\item
+  Capital reclamado igual a cero.
+\item
+  Capital reclamado distinto de cero y menor al cuartil 25\%.
+\item
+  Capital reclamado entre los cuartiles 25\% y 50\%.
+\item
+  Capital reclamado entre los cuartiles 50\% y 75\%.
+\item
+  Capital reclamado mayor al cuartil 75\%.
+\end{itemize}
 
-Separamos Localidad y Circunscripcion en columnas.
+Se separa la columna justiciables en los siguientes 6 rangos para
+categorizar.
+
+\begin{itemize}
+\tightlist
+\item
+  Justiciables igual a 1
+\item
+  Justiciables igual a 2 o 3
+\item
+  Justiciables igual a 4 o 5
+\item
+  Justiciables igual a 6 o 7
+\item
+  Justiciables igual a 8 o 9
+\item
+  Justiciables mayor a 9
+\end{itemize}
+
+Se expresan las variables localidad, tipo de proceso, circunscripción y
+materia como factor, esto se requiere para aplicar apriori.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{localidad =} \KeywordTok{as.factor}\NormalTok{(localidad))}
-\end{Highlighting}
-\end{Shaded}
 
-Convertimos columna tproc en categórica, esto es requerido por el
-algoritmo
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \NormalTok{sentencias_1c <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{tproc =} \KeywordTok{as.factor}\NormalTok{(tproc)) }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{circunscripcion =} \KeywordTok{as.factor}\NormalTok{(circunscripcion)) }\OperatorTok{%>%}\StringTok{ }
@@ -645,23 +674,14 @@ algoritmo
 \end{Highlighting}
 \end{Shaded}
 
-Tomos solamente las columnas tipo booleanos y categóricas.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{sentencias_final <-}\StringTok{ }\NormalTok{sentencias_1c }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{nro, }\OperatorTok{-}\NormalTok{as, }\OperatorTok{-}\NormalTok{ccon, }\OperatorTok{-}\NormalTok{finicio, }\OperatorTok{-}\NormalTok{fres, }\OperatorTok{-}\NormalTok{fdesp, }\OperatorTok{-}\NormalTok{fvenc1, }\OperatorTok{-}\NormalTok{fvenc2, }\OperatorTok{-}\NormalTok{tres, }\OperatorTok{-}\NormalTok{justiciables, }\OperatorTok{-}\NormalTok{reccap, }\OperatorTok{-}\NormalTok{iep, }\OperatorTok{-}\NormalTok{localidad)}
-
-\NormalTok{sentencias_final }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mostrar}\NormalTok{(}\DataTypeTok{caption =} \StringTok{"Tabla final a utilizar en el algoritmo apriori"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+Generamos una nueva tabla con las columnas tipo booleanos y categóricas.
+Se muestra un fragmento en la siguiente tabla.
 
 \rowcolors{2}{gray!6}{white}
 
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-17}Tabla final a utilizar en el algoritmo apriori}
+\caption{\label{tab:unnamed-chunk-16}Tabla final a utilizar en el algoritmo apriori}
 \centering
 \resizebox{\linewidth}{!}{
 \begin{tabular}[t]{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l}
@@ -689,9 +709,15 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 
 \section{Generación de Reglas}\label{generacion-de-reglas}
 
+Con los datos ya pre-procesados aplicamos apriori para generar las
+reglas de asociación. Inicialmente tomamos como valores límite un
+soporte de 0.001 y una confianza de 0.5.
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{rules <-}\StringTok{ }\KeywordTok{apriori}\NormalTok{(sentencias_final, }\DataTypeTok{parameter =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{supp=}\FloatTok{0.001}\NormalTok{, }\DataTypeTok{conf=}\FloatTok{0.5}\NormalTok{, }\DataTypeTok{minlen=}\DecValTok{2}\NormalTok{), }\DataTypeTok{appearance =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{rhs=}\KeywordTok{c}\NormalTok{(}\StringTok{"demorado"}\NormalTok{, }\StringTok{"rapido"}\NormalTok{)))}
+\NormalTok{rules <-}\StringTok{ }\KeywordTok{apriori}\NormalTok{(sentencias_final, }\DataTypeTok{parameter =} \KeywordTok{list}\NormalTok{(}
+  \DataTypeTok{supp=}\FloatTok{0.001}\NormalTok{, }\DataTypeTok{conf=}\FloatTok{0.5}\NormalTok{, }\DataTypeTok{minlen=}\DecValTok{2}\NormalTok{), }\DataTypeTok{appearance =} \KeywordTok{list}\NormalTok{(}
+    \DataTypeTok{rhs=}\KeywordTok{c}\NormalTok{(}\StringTok{"demorado"}\NormalTok{, }\StringTok{"rapido"}\NormalTok{)))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -711,12 +737,12 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 ## Absolute minimum support count: 11 
 ## 
 ## set item appearances ...[2 item(s)] done [0.00s].
-## set transactions ...[275 item(s), 11576 transaction(s)] done [0.01s].
+## set transactions ...[275 item(s), 11576 transaction(s)] done [0.00s].
 ## sorting and recoding items ... [105 item(s)] done [0.00s].
-## creating transaction tree ... done [0.00s].
+## creating transaction tree ... done [0.01s].
 ## checking subsets of size 1 2 3 4 5 6 done [0.00s].
 ## writing ... [310 rule(s)] done [0.00s].
-## creating S4 object  ... done [0.01s].
+## creating S4 object  ... done [0.00s].
 \end{verbatim}
 
 \begin{Shaded}
@@ -749,18 +775,20 @@ ORDINARIO FILIACION E INDEMNIZACION DE DAÑOS & FALSE & FALSE & TRUE & Gualeguay
 ##  sentencias_final         11576   0.001        0.5
 \end{verbatim}
 
-Graficamos
+Graficamos las reglas para ver como varia el soporte y la confianza.
 
-\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-19-1.pdf}
+\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-18-1.pdf} Se
+grafica nuevamente pero incluyendo en dato del orden de las reglas con
+colores.
 
 \begin{verbatim}
 ## To reduce overplotting, jitter is added! Use jitter = 0 to prevent jitter.
 \end{verbatim}
 
-\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-20-1.pdf}
+\includegraphics{TPMineria_files/figure-latex/unnamed-chunk-19-1.pdf}
 
-Realizamos un inspect de las primeras reglas, vemos que hay reglas que
-no son de interes.
+Se realiza un inspect de las primeras reglas. Se puede ver que hay
+reglas que no son de interés por tener baja confianza.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -786,11 +814,12 @@ no son de interes.
 ##      justiciables10_N}                        => {demorado} 0.002764340  0.5000000 1.874352    32
 \end{verbatim}
 
-Volvemos a visulizar ordenas por soporte y confianza
+Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{top.confidence <-}\StringTok{ }\KeywordTok{sort}\NormalTok{(rules, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{na.last =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{by =} \StringTok{"confidence"}\NormalTok{)}
+\NormalTok{top.confidence <-}\StringTok{ }\KeywordTok{sort}\NormalTok{(rules, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{, }
+                       \DataTypeTok{na.last =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{by =} \StringTok{"confidence"}\NormalTok{)}
 \KeywordTok{inspect}\NormalTok{(top.confidence[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
 \end{Highlighting}
 \end{Shaded}
@@ -833,7 +862,8 @@ Volvemos a visulizar ordenas por soporte y confianza
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{top.support <-}\StringTok{ }\KeywordTok{sort}\NormalTok{(rules, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{na.last =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{by =} \StringTok{"support"}\NormalTok{)}
+\NormalTok{top.support <-}\StringTok{ }\KeywordTok{sort}\NormalTok{(rules, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{, }
+                    \DataTypeTok{na.last =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{by =} \StringTok{"support"}\NormalTok{)}
 \KeywordTok{inspect}\NormalTok{(top.support[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
 \end{Highlighting}
 \end{Shaded}
@@ -862,6 +892,8 @@ Volvemos a visulizar ordenas por soporte y confianza
 ## [8] {tproc=EJECUTIVO,                                                                
 ##      circunscripcion=Gualeguaychú} => {demorado} 0.01278507  0.5362319 2.010175   148
 \end{verbatim}
+
+Se puede observar que tenemos reglas \ldots{}
 
 \section{Resultados / Discusión}\label{resultados-discusion}
 

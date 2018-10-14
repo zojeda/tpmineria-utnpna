@@ -57,44 +57,61 @@ mostrar.data.frame  <- function (.df, caption) {
 
 # Introducción
 
+En el trabajo se realiza un estudio sobre sentencias judiciales, en el análisis se pretende evaluar los tiempos de demora de la sentencias. Detectando patrones comunes, o causas, entre las diferentes sentencias que resultan con demoras significativas.
 
-# Procesamietno de Datos
+Se considera la demora como el tiempo entre que inicia el proceso y sale la resolución correspondiente.
+
+# Procesamiento de Datos
 
 ## Lectura de Datasets
 
-Cargamos los datasets originales 
+Cargamos los datasets originales. Contamos con un listado de 25279 sentencias las cuales tiene los siguientes datos de interés:
+
+* Tipo de Proceso.
+* Fecha de Inicio y Fecha de Resolución.
+* Cantidad de Justiciable.
+* Circunscripción.
+* Materia.
+* Capital Reclamado. 
+* Organismos.
+
+Este último campo, organismos, esta con un código interno (iep) por lo que se importa otra tabla para traducir este código.
 
 ```{r, echo=TRUE, message=FALSE}
 sentencias_1c <- read_csv("./sentencias_1c.csv") %>% 
-  filter(is.na(mat) | toupper(mat)=="C") %>% # solo incluir materia civil  
+  filter(is.na(mat) | toupper(mat)=="C") %>% 
+  # solo incluir materia civil  
   select(-mat) 
 
 organismos <- read_csv("./organismos.csv")
 ```
-## Inspección y "limpieza" de los datos
+## Inspección y categorización de los datos
 
-Inspección de los datos
+A continuación hacemos una inspección de los datos para poder categorizarlos en rangos que nos sean útiles para la generación de reglas de asociación.
 
-```{r}
+En las siguientes tablas se ven fragmentos de las tablas de sentencias y organismos son procesar.
+
+```{r echo=FALSE}
 sentencias_1c %>% 
   mostrar(caption = "Sentencias Primera Instancia Original")
 ```
 
-```{r}
+
+```{r echo=FALSE}
 organismos %>% 
   mostrar(caption = "Organismos")
 ```
 
-Quitamos los tipos de procesos "Monitorios", ya que son de mero trámite y no interesan en el análisis
+Quitamos los tipos de procesos "Monitorios", ya que son de mero trámite y no interesan en el análisis. Se eliminan 13687registros.
+
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
   filter(!grepl("MONITORIO", tproc))
 ```
 
+Calcula duración como Fecha de Resolución menos Fecha de inicio, generamos una nueva columna "duracion" y mostramos un fragmento de la nueva tabla en la siguiente gráfica.
 
-Calcula duracion como Fecha de Resolucion - Fecha de inicio
-
-```{r, echo=TRUE}
+```{r echo=FALSE}
 sentencias_1c <- sentencias_1c %>% 
   mutate(finicio = lubridate::dmy(finicio)) %>% 
   mutate(fres = lubridate::dmy(fres)) %>% 
@@ -104,22 +121,20 @@ sentencias_1c %>%
   mostrar(caption = "Sentencias con duración")
 ```
 
-
-
-Eliminamos filas que tienen datos invalidos de fecha (datos nulos o futuros por error de tipeo)
-Reemplazamos los datos NA de reccap por cero.
+Eliminamos filas que tienen datos inválidos de fecha (datos nulos o futuros por error de tipeo). Se eliminan 16 registros.
 
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
   filter(!is.na(finicio)) %>%
   filter(!is.na(fres)) %>% 
   filter(fres < '2018-09-01', finicio < '2018-09-01')
+
 ```
 
-
-
-Calcula los cuartiles de duración por cada tipo de proceso (tproc), y
-se clasifica en rapido / normal / demorado si duracion es mayor a media de tproc utilizando one hot encoding.
+Se calculan los cuartiles 25% y 75% de duración por cada tipo de proceso (tproc), y con estos parámetros se clasifican en rápido, normal o demorado si duración se encuentra en cada uno de los rangos definidos.
+* Rápido: duración menor al cuartil 25%
+* Normal: duración entre el cuartil 25% y el 75%.
+* Demorado: duración mayor al cuartil 75%.
 
 ```{r}
 demora <- sentencias_1c %>% 
@@ -130,19 +145,23 @@ demora <- sentencias_1c %>%
 sentencias_1c <- sentencias_1c %>% 
   left_join(demora, by="tproc") %>% 
   mutate(rapido = duracion <= techo_rapido) %>% 
-  mutate(normal = duracion > techo_rapido & duracion < piso_demorado) %>% 
+  mutate(normal = duracion > techo_rapido & duracion 
+         < piso_demorado) %>% 
   mutate(demorado = duracion >= piso_demorado) %>% 
-  select(-duracion, -techo_rapido, -piso_demorado) # quitando columnas temporales 
+  select(-duracion, -techo_rapido, -piso_demorado) 
+# quitando columnas temporales 
 ```
 
-```{r}
+En al siguiente tabla se muestra un fragmento de los datos con los cambios realizados.
+
+```{r echo=FALSE}
 sentencias_1c %>% 
   mutate(tproc = str_trunc(tproc, 20))%>% 
   mostrar(caption = "Agregando columnas demora") 
 
 ```
 
-Agrega datos de organismos para tenerlos separados por columna, actualmente se encuentra en columna iep.
+Se agregan los datos de los organismos para tenerlos separados por columna, actualmente el dato se encontraba en columna iep.
 
 ```{r}
 organismos <- organismos %>% 
@@ -153,9 +172,9 @@ sentencias_1c <- sentencias_1c %>%
 
 ```
 
-Exploremos la variable capital reclamado para definir los rangos
+Se explora la variable capital reclamado, para definir los rangos y categorizar, graficando un histograma del logaritmo.
 
-```{r, echo=FALSE, fig.height=4.5, fig.width=5}
+```{r echo=FALSE, fig.height=3.5, fig.width=4, message=FALSE, warning=FALSE}
 histograma <- sentencias_1c %>% 
   ggplot() +
   geom_histogram(aes(x=log(reccap)))
@@ -163,7 +182,7 @@ histograma <- sentencias_1c %>%
 histograma
 ```
 
-Calculamos los cuartiles para ver si nos sirven para parametrizar (reccap)
+Se calculan los cuartiles para evaluar si sirven para parametrizar el capital reclamado (reccap).
 
 ```{r}
 print('1º Curtil:')
@@ -175,7 +194,7 @@ quantile(pull(sentencias_1c[,'reccap']),.75, na.rm = TRUE)
 
 #View(sentencias_1c)
 ```
-Como los curtiles son cero, elimino los ceros y vuelvo a calcular los cuartiles. 
+Como los todos los cuartiles obtenidos son cero, se vuelven a calcular los cuartiles sin los datos ceros.
 
 ```{r}
 #reccap_not_cero <- which(sentencias_1c$reccap != 0)
@@ -191,16 +210,37 @@ capmedio <- mean(pull(sentencias_1c[,'reccap']))
 
 sentencias_1c <- sentencias_1c %>% 
   mutate(reccap_0 = reccap == 0) %>% 
-  mutate(reccap_1 = (reccap < quantile(which(sentencias_1c$reccap != 0),.25)) & (reccap!=0)) %>% 
-  mutate(reccap_2 = (reccap >= quantile(which(sentencias_1c$reccap != 0),.25)) & (reccap < quantile(which(sentencias_1c$reccap != 0),.50))) %>% 
-  mutate(reccap_3 = (reccap >= quantile(which(sentencias_1c$reccap != 0),.50)) & (reccap < quantile(which(sentencias_1c$reccap != 0),.75))) %>% 
-  mutate(reccap_4 = (reccap >= quantile(which(sentencias_1c$reccap != 0),.75))) 
+  mutate(reccap_1 = (reccap < quantile(which(
+    sentencias_1c$reccap != 0),.25)) & (reccap!=0)) %>% 
+  mutate(reccap_2 = (reccap >= quantile(which(
+    sentencias_1c$reccap != 0),.25)) & (reccap < quantile(which(
+      sentencias_1c$reccap != 0),.50))) %>% 
+  mutate(reccap_3 = (reccap >= quantile(which(
+    sentencias_1c$reccap != 0),.50)) & (reccap < quantile(which(
+      sentencias_1c$reccap != 0),.75))) %>% 
+  mutate(reccap_4 = (reccap >= quantile(which(
+    sentencias_1c$reccap != 0),.75))) 
 
 ```
 
-Separo la columna justiciables en 6 rangos para poder aplicar apriori.
+A partir de los cuartiles obtenidos, se generan las siguientes categorías:
 
-```{r}
+* Capital reclamado igual a cero.
+* Capital reclamado distinto de cero y menor al cuartil 25%.
+* Capital reclamado entre los cuartiles 25% y 50%.
+* Capital reclamado entre los cuartiles 50% y 75%.
+* Capital reclamado mayor al cuartil 75%.
+
+Se separa la columna justiciables en los siguientes 6 rangos para categorizar.
+
+* Justiciables igual a 1
+* Justiciables igual a 2 o 3
+* Justiciables igual a 4 o 5
+* Justiciables igual a 6 o 7
+* Justiciables igual a 8 o 9
+* Justiciables mayor a 9
+
+```{r echo=FALSE}
 
 sentencias_1c <- sentencias_1c %>% 
   mutate(justiciables0_1 = justiciables < 2) %>% 
@@ -213,25 +253,21 @@ sentencias_1c <- sentencias_1c %>%
 
 ```
 
-Separamos Localidad y Circunscripcion en columnas.
+Se expresan las variables localidad, tipo de proceso, circunscripción y materia como factor, esto se requiere para aplicar apriori.
 
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
   mutate(localidad = as.factor(localidad))
-```
 
-Convertimos columna tproc en categórica, esto es requerido por el algoritmo
-
-```{r}
 sentencias_1c <- sentencias_1c %>% 
   mutate(tproc = as.factor(tproc)) %>% 
   mutate(circunscripcion = as.factor(circunscripcion)) %>% 
   mutate(materia = as.factor(materia))
 ```
 
-Tomos solamente las columnas tipo booleanos y categóricas.
+Generamos una nueva tabla con las columnas tipo booleanos y categóricas. Se muestra un fragmento en la siguiente tabla.
 
-```{r}
+```{r echo=FALSE}
 sentencias_final <- sentencias_1c %>% 
   select(-nro, -as, -ccon, -finicio, -fres, -fdesp, -fvenc1, -fvenc2, -tres, -justiciables, -reccap, -iep, -localidad)
 
@@ -241,29 +277,36 @@ sentencias_final %>%
 
 # Generación de Reglas
 
+Con los datos ya pre-procesados aplicamos apriori para generar las reglas de asociación. Inicialmente tomamos como valores límite un soporte de 0.001 y una confianza de 0.5.
+
 ```{r}
 
-rules <- apriori(sentencias_final, parameter = list(supp=0.001, conf=0.5, minlen=2), appearance = list(rhs=c("demorado", "rapido")))
+rules <- apriori(sentencias_final, parameter = list(
+  supp=0.001, conf=0.5, minlen=2), appearance = list(
+    rhs=c("demorado", "rapido")))
 summary(rules)
 
 
 ```
 
-Graficamos
 
-```{r echo=FALSE, fig.height=4.5, fig.width=5, message=FALSE, warning=FALSE}
+
+Graficamos las reglas para ver como varia el soporte y la confianza.
+
+```{r echo=FALSE, fig.height=4, fig.width=4.5, message=FALSE, warning=FALSE}
 
 plot(rules)
 
 ```
+Se grafica nuevamente pero incluyendo en dato del orden de las reglas con colores.
 
-```{r, echo=FALSE, fig.height=4.5, fig.width=5}
+```{r, echo=FALSE, fig.height=4, fig.width=4.5}
 
 plot(rules, method = "two-key plot")
 
 ```
 
-Realizamos un inspect de las primeras reglas, vemos que hay reglas que no son de interes.
+Se realiza un inspect de las primeras reglas. Se puede ver que hay reglas que no son de interés por tener baja confianza.
 
 ```{r}
 
@@ -271,22 +314,25 @@ inspect(rules[1:8])
 
 ```
 
-Volvemos a visulizar ordenas por soporte y confianza
+Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 
 ```{r}
-top.confidence <- sort(rules, decreasing = TRUE, na.last = NA, by = "confidence")
+top.confidence <- sort(rules, decreasing = TRUE, 
+                       na.last = NA, by = "confidence")
 inspect(top.confidence[1:8])
-
 
 ```
 
 
 ```{r}
 
-top.support <- sort(rules, decreasing = TRUE, na.last = NA, by = "support")
+top.support <- sort(rules, decreasing = TRUE, 
+                    na.last = NA, by = "support")
 inspect(top.support[1:8])
 
 ```
+
+Se puede observar que tenemos reglas ...
 
 
 # Resultados / Discusión
