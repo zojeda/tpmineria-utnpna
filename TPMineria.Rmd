@@ -2,7 +2,7 @@
 title: "Minería de Datos"
 author: "Bodean, Emiliano & Ojeda, Zacarías"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
-keywords: "Minería de Datos, sentencia, justicia, demora"
+keywords: "Minería de Datos, sentencia, justicia, demora, reglas de asociación"
 abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos."
 university: "UTN Regional Paraná"
 output:
@@ -101,7 +101,7 @@ organismos <- read_csv("./organismos.csv")
 
 A continuación hacemos una inspección de los datos para poder categorizarlos en rangos que nos sean útiles para la generación de reglas de asociación.
 
-En las siguientes tablas se ven fragmentos de las tablas de sentencias y organismos son procesar.
+En las siguientes tablas se ven fragmentos de las tablas de sentencias y organismos sin procesar.
 
 ```{r echo=FALSE}
 sentencias_1c %>% 
@@ -114,14 +114,14 @@ organismos %>%
   mostrar(caption = "Organismos")
 ```
 
-Quitamos los tipos de procesos "Monitorios", ya que son de mero trámite y no interesan en el análisis. Se eliminan 13687registros.
+Se quitan los tipos de procesos "Monitorios", ya que son de mero trámite y no interesan en el análisis. Se eliminan 13687registros.
 
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
   filter(!grepl("MONITORIO", tproc))
 ```
 
-Calcula duración como Fecha de Resolución menos Fecha de inicio, generamos una nueva columna "duracion" y mostramos un fragmento de la nueva tabla en la siguiente gráfica.
+Se calcula duración como Fecha de Resolución menos Fecha de inicio, se genera una nueva columna "duracion" y, en la siguiente gráfica, se muestra un fragmento de la nueva tabla.
 
 ```{r echo=FALSE}
 sentencias_1c <- sentencias_1c %>% 
@@ -133,7 +133,7 @@ sentencias_1c %>%
   mostrar(caption = "Sentencias con duración")
 ```
 
-Eliminamos filas que tienen datos inválidos de fecha (datos nulos o futuros por error de tipeo). Se eliminan 16 registros.
+Se eliminan las filas que tienen datos inválidos de fecha (datos nulos o futuros por error de tipeo). Se eliminan 16 registros.
 
 ```{r}
 sentencias_1c <- sentencias_1c %>% 
@@ -144,6 +144,7 @@ sentencias_1c <- sentencias_1c %>%
 ```
 
 Se calculan los cuartiles 25% y 75% de duración por cada tipo de proceso (tproc), y con estos parámetros se clasifican en rápido, normal o demorado si duración se encuentra en cada uno de los rangos definidos.
+
 * Rápido: duración menor al cuartil 25%
 * Normal: duración entre el cuartil 25% y el 75%.
 * Demorado: duración mayor al cuartil 75%.
@@ -344,6 +345,17 @@ inspect(top.support[1:8])
 
 ```
 
+Se toman las reglas ordenandas por confianza para analizar y eliminar las reglas redundantes. Se puede observar en el inspect que las reglas 2 y 3 son similares a la regla 1 pero más específicas, por esto deben ser eliminadas para el análisis.
+Se elimianan las reglas redundantes y se imprimen las primeras 8.
+
+```{r size = 'scriptsize'}
+top.confidence <- top.confidence[!is.redundant(top.confidence)]
+
+summary(top.confidence)
+
+inspect(top.confidence[1:8])
+
+```
 Se puede observar que tenemos reglas ...
 
 
