@@ -1,7 +1,10 @@
 ---
-title: "TPMineria"
+title: "Minería de Datos"
 author: "Bodean, Emiliano & Ojeda, Zacarías"
-date: "8/25/2018"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+keywords: "Minería de Datos, sentencia, justicia, demora"
+abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos."
+university: "UTN Regional Paraná"
 output:
   pdf_document:
     fig_caption: yes
@@ -36,6 +39,12 @@ if(!require("kableExtra")) install.packages("kableExtra")
 library(kableExtra)
 if(!require("arulesViz")) install.packages('arulesViz')
 library(arulesViz)
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
 ```
 
 ```{r, include=FALSE}
@@ -52,14 +61,17 @@ mostrar.data.frame  <- function (.df, caption) {
 }
 
 ```
-# Resumen
-
-
 # Introducción
 
-En el trabajo se realiza un estudio sobre sentencias judiciales, en el análisis se pretende evaluar los tiempos de demora de la sentencias. Detectando patrones comunes, o causas, entre las diferentes sentencias que resultan con demoras significativas.
+En el trabajo se realiza un estudio sobre sentencias judiciales, en el análisis se pretende evaluar los tiempos de demora de la sentencias. Detectando patrones comunes, o asociaciones, que resulten significativas con estos tiempo de demora.
 
-Se considera la demora como el tiempo entre que inicia el proceso y sale la resolución correspondiente.
+Se considera la demora como el tiempo entre que inicia el proceso y la sentencia correspondiente que pone fin al conflicto.
+
+Se cuenta con una base de datos de resoluciones correspondientes al Superior Tribunal de Justicia de la Provincia de Entre Ríos, que a sido debidamente anonimizada, quitando referencias a las partes intervinientes y carátulas de las causas.
+
+El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.
+
+
 
 # Procesamiento de Datos
 
@@ -279,7 +291,7 @@ sentencias_final %>%
 
 Con los datos ya pre-procesados aplicamos apriori para generar las reglas de asociación. Inicialmente tomamos como valores límite un soporte de 0.001 y una confianza de 0.5.
 
-```{r}
+```{r size = 'scriptsize'}
 
 rules <- apriori(sentencias_final, parameter = list(
   supp=0.001, conf=0.5, minlen=2), appearance = list(
@@ -308,7 +320,7 @@ plot(rules, method = "two-key plot")
 
 Se realiza un inspect de las primeras reglas. Se puede ver que hay reglas que no son de interés por tener baja confianza.
 
-```{r}
+```{r size = 'scriptsize'}
 
 inspect(rules[1:8])
 
@@ -316,7 +328,7 @@ inspect(rules[1:8])
 
 Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 
-```{r}
+```{r size = 'scriptsize'}
 top.confidence <- sort(rules, decreasing = TRUE, 
                        na.last = NA, by = "confidence")
 inspect(top.confidence[1:8])
@@ -324,7 +336,7 @@ inspect(top.confidence[1:8])
 ```
 
 
-```{r}
+```{r size = 'scriptsize'}
 
 top.support <- sort(rules, decreasing = TRUE, 
                     na.last = NA, by = "support")
