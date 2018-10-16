@@ -77,7 +77,7 @@
   \fi}
 %
 \def\switcht@albion{%
-\def\abstractname{Abstract.}
+\def\abstractname{Resumen.}
 \def\ackname{Acknowledgement.}
 \def\andname{and}
 \def\lastandname{\unskip, and}
@@ -91,7 +91,7 @@
 \def\examplename{Example}
 \def\exercisename{Exercise}
 \def\figurename{Fig.}
-\def\keywordname{{\bf Keywords:}}
+\def\keywordname{{\bf Palabras Claves:}}
 \def\indexname{Index}
 \def\lemmaname{Lemma}
 \def\contriblistname{List of Contributors}

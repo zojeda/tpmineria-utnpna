@@ -13,7 +13,6 @@ output:
     md_extensions: +footnotes
     latex_engine: xelatex
     template: lncs-template.tex
-    citation_package: biblatex
   html_document:
     css: lncs.css
     md_extensions: +footnotes
@@ -21,6 +20,8 @@ output:
     self_contained: no
     template: lncs-template.html
     theme: null
+lang: "es-AR"
+csl: lncs.csl
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
@@ -73,7 +74,7 @@ Se cuenta con una base de datos de resoluciones correspondientes al Superior Tri
 
 El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.
 
-El procesamiento y análisis de datos se ha realizado con el [lenguaje R](https://www.r-project.org) v3.4.4 [@R], utilizando [dplyr]() para preprocesamiento de datos, [arules]() para creación de reglas de asociación y [arulesViz]() para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles XXX cita.
+El procesamiento y análisis de datos se ha realizado con el [lenguaje R](https://www.r-project.org) v3.4.4 [-@RProject], utilizando [dplyr]() para preprocesamiento de datos, [arules]() para creación de reglas de asociación y [arulesViz]() para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles XXX cita.
 
 # Procesamiento de Datos
 
@@ -383,7 +384,5 @@ En cuanto a las herramientas, el preprocesamiento de datos y la generación de r
 
 # Referencias
 
-
-...
 
 

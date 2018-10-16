@@ -17,7 +17,7 @@
 \usepackage[normalem]{ulem}
 \usepackage{makecell}
 \usepackage{graphicx}
-\usepackage{biblatex}
+\bibliographystyle{splncs}
 %extended enumerate, such as \begin{compactenum}
 \usepackage{paralist}
 
@@ -243,11 +243,11 @@ tratamiento por parte de los organismos (juzgados) y por ende supone
 demoras esperables diferentes.
 
 El procesamiento y análisis de datos se ha realizado con el
-\href{https://www.r-project.org}{lenguaje R} v3.4.4 \autocite{R},
-utilizando \href{}{dplyr} para preprocesamiento de datos,
-\href{}{arules} para creación de reglas de asociación y
-\href{}{arulesViz} para visualizarlas. El presente informe se ha
-realizado en Rmd para producir resultados reproducibles XXX cita.
+\href{https://www.r-project.org}{lenguaje R} v3.4.4 {[}1{]}, utilizando
+\href{}{dplyr} para preprocesamiento de datos, \href{}{arules} para
+creación de reglas de asociación y \href{}{arulesViz} para
+visualizarlas. El presente informe se ha realizado en Rmd para producir
+resultados reproducibles XXX cita.
 
 \section{Procesamiento de Datos}\label{procesamiento-de-datos}
 
@@ -1087,11 +1087,12 @@ documento, como así también hace muy sencillo trabajar de manera
 colaborativa ya que en el mismo documento está el código que se ha
 utilizado para manipular los datos y generar las reglas.
 
-\section{Referencias}\label{referencias}
+\section*{Referencias}\label{referencias}
+\addcontentsline{toc}{section}{Referencias}
 
-\ldots{}
-\newpage
-
-\printbibliography
+\hypertarget{refs}{}
+\hypertarget{ref-RProject}{}
+1. RComunity: \emph{The R Project for Statistical Computing},
+\url{https://www.r-project.org/}.
 
 \end{document}
