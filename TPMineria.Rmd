@@ -204,7 +204,8 @@ Se explora la variable capital reclamado, para definir los rangos y categorizar,
 histograma_cap <- sentencias_1c %>% 
   ggplot() +
   geom_histogram(aes(x=reccap), bins = 7) +
-  ggtitle("hist recap")
+  ggtitle("hist recap") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 histograma_logrecap <- sentencias_1c %>% 
   ggplot() +
