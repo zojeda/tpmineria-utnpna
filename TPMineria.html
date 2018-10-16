@@ -74,7 +74,7 @@
     <p>Se cuenta con una base de datos de resoluciones correspondientes al Superior Tribunal de Justicia de la Provincia de Entre Ríos, que a sido debidamente anonimizada, quitando referencias a las partes intervinientes y carátulas de las causas.</p>
     <p>El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.</p>
     <p>El procesamiento y análisis de datos se ha realizado con el <a href="https://www.r-project.org">lenguaje R</a><span class="citation">[2]</span>, utilizando <a href="https://dplyr.tidyverse.org/">dplyr</a><span class="citation">[3]</span> para preprocesamiento de datos, <a href="https://cran.r-project.org/web/packages/arules/index.html">arules</a><span class="citation">[4]</span> para creación de reglas de asociación y <a href="https://cran.r-project.org/web/packages/arulesViz/index.html">arulesViz</a><span class="citation">[5]</span> para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles<span class="citation">[6]</span>.</p>
-    <p>Se puede acceder al código fuente del presente trabajo a través de <a href="https://zojeda@bitbucket.org/mineriapna/trabajo-practico-mineria.git">repositorio git</a>, o al archivo generado <a href="https://bitbucket.org/mineriapna/tpmineriautnpnabo.bitbucket.io/raw/6a806ef7bd27769a7aeae1d84844651af6b0c07a/TPMineria.pdf">PDF</a> o la version <a href="https://tpmineriautnpnabo.bitbucket.io/TPMineria.html">WEB</a>.</p>
+    <p>Se puede acceder al código fuente del presente trabajo a través de <a href="https://github.com/zojeda/tpmineria-utnpna.git">repositorio git</a>, o al archivo generado <a href="https://zojeda.github.io/tpmineria-utnpna/TPMineria.pdf">PDF</a> o la version <a href="https://zojeda.github.io/tpmineria-utnpna/TPMineria.html">WEB</a>.</p>
     </div>
     <div id="procesamiento-de-datos" class="section level1">
     <h1><span class="header-section-number">2</span> Procesamiento de Datos</h1>
@@ -2035,7 +2035,7 @@
     ## [8] {materia=cco,                                                                                
     ##      justiciables10_N}                        =&gt; {demorado} 0.002764340  0.5000000 1.874352    32</code></pre>
     
-    <p>Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas son similares pero solamente difieren en su nivel especificidad, por esto deben ser eliminadas para el análisis. </p>
+    <p>Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas que son similares pero solamente difieren en su nivel de especificidad, por esto deben ser eliminadas para el análisis. </p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules &lt;-<span class="st"> </span>rules[<span class="op">!</span><span class="kw">is.redundant</span>(rules)]
     <span class="kw">inspect</span>(rules[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
     <pre><code>##     lhs                                          rhs            support confidence     lift count
@@ -2054,7 +2054,7 @@
     ## [8] {circunscripcion=Paraná,                                                                     
     ##      justiciables10_N}                        =&gt; {demorado} 0.003023497  0.5384615 2.018533    35</code></pre>
     
-    <p>Graficamos las reglas para ver como varia el soporte y la confianza.</p>
+    <p>Graficamos las reglas para ver como varía el soporte y la confianza.</p>
     <p><img src="TPMineria_files/figure-html/unnamed-chunk-21-1.png" width="432" /> Se grafica nuevamente pero incluyendo en dato del orden de las reglas con colores.</p>
     <pre><code>## To reduce overplotting, jitter is added! Use jitter = 0 to prevent jitter.</code></pre>
     <p><img src="TPMineria_files/figure-html/unnamed-chunk-22-1.png" width="432" /></p>
@@ -2199,7 +2199,7 @@
     <li>Los procesos <em>EJECUTIVO</em> en <em>Gualeguaychú</em> aparecen como <em>demorados</em>.</li>
     </ul>
     <p>Se han obtenido reglas que eran de esperarse debido, por ejemplo, a que dado un tipo de proceso, al incrementarse el capital reclamado o el nro de justiciables, se puede inferir que todo el proceso se hace más complejo y se elonguen los tiempos de resolución por sentencia.</p>
-    <p>Sin embargo, <em>no hay razones</em> de tipo procesal, para que <em>diferentes circunscrupciones/jurisdicciones presenten diferencias</em>, las mismas, <em>son las más significativas para el análisis</em> y requieren una investigación más profunda. Las mismas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.</p>
+    <p>Sin embargo, <em>no hay razones</em> de tipo procesal, para que <em>diferentes circunscrupciones/jurisdicciones presenten diferencias</em>, las mismas, <em>son las más significativas para el análisis</em> y requieren una investigación más profunda. Las reglas generadas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.</p>
     </div>
     </div>
     <div id="conclusiones" class="section level1">

@@ -7,11 +7,6 @@ abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia d
 university: "UTN Regional Paraná"
 bibliography: references.bib
 output:
-  pdf_document:
-    fig_caption: yes
-    md_extensions: +footnotes
-    latex_engine: xelatex
-    template: lncs-template.tex
   html_document:
     css: lncs.css
     md_extensions: +footnotes
@@ -19,6 +14,11 @@ output:
     self_contained: no
     template: lncs-template.html
     theme: null
+  pdf_document:
+    fig_caption: yes
+    md_extensions: +footnotes
+    latex_engine: xelatex
+    template: lncs-template.tex
 lang: "es-AR"
 csl: lncs.csl
 ---
@@ -76,7 +76,7 @@ El análisis se realiza analizando demoras según el tipo de proceso, debido a q
 
 El procesamiento y análisis de datos se ha realizado con el [lenguaje R](https://www.r-project.org)[@RProject], utilizando [dplyr](https://dplyr.tidyverse.org/)[@dplyr] para preprocesamiento de datos, [arules](https://cran.r-project.org/web/packages/arules/index.html)[@arules] para creación de reglas de asociación y [arulesViz](https://cran.r-project.org/web/packages/arulesViz/index.html)[@arulesVis] para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles[@reproducibleResearch].
 
-Se puede acceder al código fuente del presente trabajo a través de [repositorio git](https://zojeda@bitbucket.org/mineriapna/trabajo-practico-mineria.git), o al archivo generado [PDF](https://bitbucket.org/mineriapna/tpmineriautnpnabo.bitbucket.io/raw/6a806ef7bd27769a7aeae1d84844651af6b0c07a/TPMineria.pdf) o la version [WEB](https://tpmineriautnpnabo.bitbucket.io/TPMineria.html).
+Se puede acceder al código fuente del presente trabajo a través de [repositorio git](https://github.com/zojeda/tpmineria-utnpna.git), o al archivo generado [PDF](https://zojeda.github.io/tpmineria-utnpna/TPMineria.pdf) o la version [WEB](https://zojeda.github.io/tpmineria-utnpna/TPMineria.html).
 
 # Procesamiento de Datos
 
