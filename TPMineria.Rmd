@@ -1,17 +1,12 @@
 ---
 title: "Minería de Datos"
 author: "Bodean, Emiliano - Ojeda, Zacarías"
-date:  "`r format(Sys.time(), '%d %B, %Y')`"
+date:  "16 de octubre de 2018"
 keywords: "Minería de Datos, sentencia, justicia, demora, reglas de asociación"
-abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos."
+abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos. Se ha utilizado el lengueje R y el set de herramientas Tidyverse"
 university: "UTN Regional Paraná"
 bibliography: references.bib
 output:
-  pdf_document:
-    fig_caption: yes
-    md_extensions: +footnotes
-    latex_engine: xelatex
-    template: lncs-template.tex
   html_document:
     css: lncs.css
     md_extensions: +footnotes
@@ -19,6 +14,11 @@ output:
     self_contained: no
     template: lncs-template.html
     theme: null
+  pdf_document:
+    fig_caption: yes
+    md_extensions: +footnotes
+    latex_engine: xelatex
+    template: lncs-template.tex
 lang: "es-AR"
 csl: lncs.csl
 ---
@@ -41,6 +41,7 @@ if(!require("kableExtra")) install.packages("kableExtra")
 library(kableExtra)
 if(!require("arulesViz")) install.packages('arulesViz')
 library(arulesViz)
+if(!require("gridExtra")) install.packages('gridExtra')
 
 def.chunk.hook  <- knitr::knit_hooks$get("chunk")
 knitr::knit_hooks$set(chunk = function(x, options) {
@@ -73,7 +74,9 @@ Se cuenta con una base de datos de resoluciones correspondientes al Superior Tri
 
 El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.
 
-El procesamiento y análisis de datos se ha realizado con el [lenguaje R](https://www.r-project.org)[@RProject] v3.4.4, utilizando [dplyr](https://dplyr.tidyverse.org/)[@dplyr] para preprocesamiento de datos, [arules](https://cran.r-project.org/web/packages/arules/index.html)[@arules] para creación de reglas de asociación y [arulesViz](https://cran.r-project.org/web/packages/arulesViz/index.html)[@arulesVis] para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles[@reproducibleResearch].
+El procesamiento y análisis de datos se ha realizado con el [lenguaje R](https://www.r-project.org)[@RProject], utilizando [dplyr](https://dplyr.tidyverse.org/)[@dplyr] para preprocesamiento de datos, [arules](https://cran.r-project.org/web/packages/arules/index.html)[@arules] para creación de reglas de asociación y [arulesViz](https://cran.r-project.org/web/packages/arulesViz/index.html)[@arulesVis] para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles[@reproducibleResearch].
+
+Se puede acceder al código fuente del presente trabajo a través de [repositorio git](https://zojeda@bitbucket.org/mineriapna/trabajo-practico-mineria.git), o al archivo generado [PDF](https://bitbucket.org/mineriapna/tpmineriautnpnabo.bitbucket.io/raw/6a806ef7bd27769a7aeae1d84844651af6b0c07a/TPMineria.pdf) o la version [WEB](https://tpmineriautnpnabo.bitbucket.io/TPMineria.html).
 
 # Procesamiento de Datos
 
@@ -108,6 +111,14 @@ En las siguientes tablas se ven fragmentos de las tablas de sentencias y organis
 ```{r echo=FALSE}
 sentencias_1c %>% 
   mostrar(caption = "Sentencias Primera Instancia Original")
+```
+
+```{r echo=FALSE, size = 'scriptsize'}
+data.frame(variable = names(sentencias_1c),
+           tipo = sapply(sentencias_1c, typeof),
+           primeros_valores = sapply(sentencias_1c, function(x) paste0(head(x, 2),  collapse = ", ")),
+           row.names = NULL) %>% 
+  kable(caption = "Datos y Tipos de la tabla de sentencias")
 ```
 
 
@@ -187,14 +198,20 @@ sentencias_1c <- sentencias_1c %>%
 
 ```
 
-Se explora la variable capital reclamado, para definir los rangos y categorizar, graficando un histograma del logaritmo.
+Se explora la variable capital reclamado, para definir los rangos y categorizar, graficando tanto el histograma del mismo, como el histograma del logaritmo.
 
 ```{r echo=FALSE, fig.height=3.5, fig.width=4, message=FALSE, warning=FALSE}
-histograma <- sentencias_1c %>% 
+histograma_cap <- sentencias_1c %>% 
   ggplot() +
-  geom_histogram(aes(x=log(reccap)))
+  geom_histogram(aes(x=reccap), bins = 7) +
+  ggtitle("hist recap")
 
-histograma
+histograma_logrecap <- sentencias_1c %>% 
+  ggplot() +
+  geom_histogram(aes(x=log(reccap)), bins = 7) +
+  ggtitle("hist log(recap)")
+
+gridExtra::grid.arrange(histograma_cap, histograma_logrecap, ncol=2)
 ```
 
 Se calculan los cuartiles para evaluar si sirven para parametrizar el capital reclamado (reccap).
@@ -304,7 +321,16 @@ summary(rules)
 
 ```
 
+```{r size = 'scriptsize'}
+inspect(rules[1:8])
+```
 
+
+Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas son similares pero solamente difieren en su nivel especificidad, por esto deben ser eliminadas para el análisis.
+```{r size = 'scriptsize'}
+rules <- rules[!is.redundant(rules)]
+inspect(rules[1:8])
+```
 
 Graficamos las reglas para ver como varia el soporte y la confianza.
 
@@ -327,12 +353,6 @@ Se realiza un inspect de las primeras reglas. Se puede ver que hay reglas que no
 
 inspect(rules[1:8])
 
-```
-
-Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas son similares pero solamente difieren en su nivel especificidad, por esto deben ser eliminadas para el análisis.
-```{r size = 'scriptsize'}
-rules <- rules[!is.redundant(rules)]
-inspect(rules[1:8])
 ```
 
 
@@ -370,9 +390,9 @@ inspect(top.confidence[1:8])
 * *APREMIO* con capital reclamado *recap_1* aparecen en gral *demorados*, sin embargo, cuando el capital reclamado es *recap_0*, se resuelven *rápido*.
 * Los procesos *EJECUTIVO* en *Gualeguaychú* aparecen como *demorados*.
 
-Han aparecido reglas que eran de esperarse debido, por ejemplo, dado un tipo de proceso, al incrementarse el capital reclamado o el nro de justiciables, se puede inferir que todo el proceso se hace más complejo y se elongue en el tiempo su resolución.
+Se han obtenido reglas que eran de esperarse debido, por ejemplo, a que dado un tipo de proceso, al incrementarse el capital reclamado o el nro de justiciables, se puede inferir que todo el proceso se hace más complejo y se elonguen los tiempos de resolución por sentencia.
 
-Sin embargo, *no hay razones* de tipo procesal, para que *diferentes circunscrupciones/jurisdicciones presenten diferencias*, las mismas, *son las más significativas para el análisis* y requieren un análisis más profundo. Las mismas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.
+Sin embargo, *no hay razones* de tipo procesal, para que *diferentes circunscrupciones/jurisdicciones presenten diferencias*, las mismas, *son las más significativas para el análisis* y requieren una investigación más profunda. Las mismas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.
 
 
 # Conclusiones
