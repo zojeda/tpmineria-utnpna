@@ -3,7 +3,7 @@ title: "Minería de Datos"
 author: "Bodean, Emiliano - Ojeda, Zacarías"
 date:  "16 de octubre de 2018"
 keywords: "Minería de Datos, sentencia, justicia, demora, reglas de asociación"
-abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos. Se ha utilizado el lengueje R y el set de herramientas Tidyverse"
+abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos. Se ha utilizado el lengueje R y el set de herramientas tidyverse[@tidyverse]"
 university: "UTN Regional Paraná"
 bibliography: references.bib
 output:
