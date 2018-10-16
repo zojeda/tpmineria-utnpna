@@ -59,7 +59,7 @@
 
 
             <div class="abstract">
-            <p><strong>Abstract</strong>: Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos. Se ha utilizado el lengueje R y el set de herramientas Tidyverse</p>
+            <p><strong>Abstract</strong>: Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos. Se ha utilizado el lengueje R y el set de herramientas tidyverse<span class="citation">[1]</span></p>
         </div>
     
             <div class="keywords">
@@ -73,7 +73,7 @@
     <p>Se considera la demora como el tiempo entre que inicia el proceso y la sentencia correspondiente que pone fin al conflicto.</p>
     <p>Se cuenta con una base de datos de resoluciones correspondientes al Superior Tribunal de Justicia de la Provincia de Entre Ríos, que a sido debidamente anonimizada, quitando referencias a las partes intervinientes y carátulas de las causas.</p>
     <p>El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.</p>
-    <p>El procesamiento y análisis de datos se ha realizado con el <a href="https://www.r-project.org">lenguaje R</a><span class="citation">[1]</span>, utilizando <a href="https://dplyr.tidyverse.org/">dplyr</a><span class="citation">[2]</span> para preprocesamiento de datos, <a href="https://cran.r-project.org/web/packages/arules/index.html">arules</a><span class="citation">[3]</span> para creación de reglas de asociación y <a href="https://cran.r-project.org/web/packages/arulesViz/index.html">arulesViz</a><span class="citation">[4]</span> para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles<span class="citation">[5]</span>.</p>
+    <p>El procesamiento y análisis de datos se ha realizado con el <a href="https://www.r-project.org">lenguaje R</a><span class="citation">[2]</span>, utilizando <a href="https://dplyr.tidyverse.org/">dplyr</a><span class="citation">[3]</span> para preprocesamiento de datos, <a href="https://cran.r-project.org/web/packages/arules/index.html">arules</a><span class="citation">[4]</span> para creación de reglas de asociación y <a href="https://cran.r-project.org/web/packages/arulesViz/index.html">arulesViz</a><span class="citation">[5]</span> para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles<span class="citation">[6]</span>.</p>
     <p>Se puede acceder al código fuente del presente trabajo a través de <a href="https://zojeda@bitbucket.org/mineriapna/trabajo-practico-mineria.git">repositorio git</a>, o al archivo generado <a href="https://bitbucket.org/mineriapna/tpmineriautnpnabo.bitbucket.io/raw/6a806ef7bd27769a7aeae1d84844651af6b0c07a/TPMineria.pdf">PDF</a> o la version <a href="https://tpmineriautnpnabo.bitbucket.io/TPMineria.html">WEB</a>.</p>
     </div>
     <div id="procesamiento-de-datos" class="section level1">
@@ -2210,20 +2210,23 @@
     <div id="referencias" class="section level1 unnumbered">
     <h1>Referencias</h1>
     <div id="refs" class="references">
+    <div id="ref-tidyverse">
+    <p>1. <em>R packages for data science</em>, <a href="https://www.tidyverse.org/" class="uri">https://www.tidyverse.org/</a>.</p>
+    </div>
     <div id="ref-RProject">
-    <p>1. <em>The R Project for Statistical Computing</em>, <a href="https://www.r-project.org/" class="uri">https://www.r-project.org/</a>.</p>
+    <p>2. <em>The R Project for Statistical Computing</em>, <a href="https://www.r-project.org/about.html" class="uri">https://www.r-project.org/about.html</a>.</p>
     </div>
     <div id="ref-dplyr">
-    <p>2. <em>A Grammar of Data Manipulation</em>, <a href="https://dplyr.tidyverse.org/" class="uri">https://dplyr.tidyverse.org/</a>.</p>
+    <p>3. <em>dplyr: A Grammar of Data Manipulation</em>, <a href="https://dplyr.tidyverse.org/" class="uri">https://dplyr.tidyverse.org/</a>.</p>
     </div>
     <div id="ref-arules">
-    <p>3. <em>arules: Mining Association Rules and Frequent Itemsets</em>, <a href="https://cran.r-project.org/web/packages/arules/index.html" class="uri">https://cran.r-project.org/web/packages/arules/index.html</a>.</p>
+    <p>4. <em>arules: Mining Association Rules and Frequent Itemsets</em>, <a href="https://cran.r-project.org/web/packages/arules/index.html" class="uri">https://cran.r-project.org/web/packages/arules/index.html</a>.</p>
     </div>
     <div id="ref-arulesVis">
-    <p>4. <em>arulesVis: Visualizing Association Rules and Frequent Itemsets</em>, <a href="https://cran.r-project.org/web/packages/arulesViz/index.html" class="uri">https://cran.r-project.org/web/packages/arulesViz/index.html</a>.</p>
+    <p>5. <em>arulesVis: Visualizing Association Rules and Frequent Itemsets</em>, <a href="https://cran.r-project.org/web/packages/arulesViz/index.html" class="uri">https://cran.r-project.org/web/packages/arulesViz/index.html</a>.</p>
     </div>
     <div id="ref-reproducibleResearch">
-    <p>5. Gandrud, C.: Reproducible Research with R and R Studio. (2015).</p>
+    <p>6. Gandrud, C.: Reproducible Research with R and R Studio. (2015).</p>
     </div>
     </div>
     </div>
