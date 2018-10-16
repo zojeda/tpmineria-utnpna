@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
-    <meta name="generator" content="pandoc" />     <meta name="author" content="Bodean, Emiliano &amp; Ojeda, Zacarías F" />      <title>TPMineria</title>
+    <meta name="generator" content="pandoc" />     <meta name="author" content="Bodean, Emiliano - Ojeda, Zacarías" />      <title>Minería de Datos</title>
          <style type="text/css">
         div.sourceCode { overflow-x: auto; }
         table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
@@ -47,28 +47,60 @@
 
 <body>
             <div id="header">
-        <h1 class="title">TPMineria</h1>
+        <h1 class="title">Minería de Datos</h1>
         
                 <div class="author">
-            <h2>Bodean, Emiliano &amp; Ojeda, Zacarías F</h2>
-                                            </div>
+            <h2>Bodean, Emiliano - Ojeda, Zacarías</h2>
+                                                    <p>UTN Regional Paraná</p>
+                    </div>
         
-                    <h3 class="date">8/25/2018</h3>
+                    <h3 class="date">16 octubre, 2018</h3>
             </div>
 
 
+            <div class="abstract">
+            <p><strong>Abstract</strong>: Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos.</p>
+        </div>
     
+            <div class="keywords">
+            <p><strong>Keywords</strong>: Minería de Datos, sentencia, justicia, demora, reglas de asociación</p>
+        </div>
     
      
-    <p>Cargamos los datasets originales</p>
+    <div id="introduccion" class="section level1">
+    <h1><span class="header-section-number">1</span> Introducción</h1>
+    <p>En el trabajo se realiza un estudio sobre sentencias judiciales, en el análisis se pretende evaluar los tiempos de demora de la sentencias. Detectando patrones comunes, o asociaciones, que resulten significativas con estos tiempo de demora.</p>
+    <p>Se considera la demora como el tiempo entre que inicia el proceso y la sentencia correspondiente que pone fin al conflicto.</p>
+    <p>Se cuenta con una base de datos de resoluciones correspondientes al Superior Tribunal de Justicia de la Provincia de Entre Ríos, que a sido debidamente anonimizada, quitando referencias a las partes intervinientes y carátulas de las causas.</p>
+    <p>El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.</p>
+    <p>El procesamiento y análisis de datos se ha realizado con el <a href="https://www.r-project.org">lenguaje R</a> v3.4.4 <span class="citation">(R Comunity, n.d.)</span>, utilizando <a href="">dplyr</a> para preprocesamiento de datos, <a href="">arules</a> para creación de reglas de asociación y <a href="">arulesViz</a> para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles XXX cita.</p>
+    </div>
+    <div id="procesamiento-de-datos" class="section level1">
+    <h1><span class="header-section-number">2</span> Procesamiento de Datos</h1>
+    <div id="lectura-de-datasets" class="section level2">
+    <h2><span class="header-section-number">2.1</span> Lectura de Datasets</h2>
+    <p>Cargamos los datasets originales. Contamos con un listado de 25279 sentencias las cuales tiene los siguientes datos de interés:</p>
+    <ul>
+    <li>Tipo de Proceso.</li>
+    <li>Fecha de Inicio y Fecha de Resolución.</li>
+    <li>Cantidad de Justiciable.</li>
+    <li>Circunscripción.</li>
+    <li>Materia.</li>
+    <li>Capital Reclamado.</li>
+    <li>Organismos.</li>
+    </ul>
+    <p>Este último campo, organismos, esta con un código interno (iep) por lo que se importa otra tabla para traducir este código.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;./sentencias_1c.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(mat) <span class="op">|</span><span class="st"> </span><span class="kw">toupper</span>(mat)<span class="op">==</span><span class="st">&quot;C&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># solo incluir materia civil  </span>
+    <span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(mat) <span class="op">|</span><span class="st"> </span><span class="kw">toupper</span>(mat)<span class="op">==</span><span class="st">&quot;C&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+    <span class="st">  </span><span class="co"># solo incluir materia civil  </span>
     <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>mat) 
     
     organismos &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;./organismos.csv&quot;</span>)</code></pre></div>
-    <p>Inspección de los datos</p>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mostrar</span>(<span class="dt">caption =</span> <span class="st">&quot;Sentencias Primera Instancia Original&quot;</span>)</code></pre></div>
+    </div>
+    <div id="inspeccion-y-categorizacion-de-los-datos" class="section level2">
+    <h2><span class="header-section-number">2.2</span> Inspección y categorización de los datos</h2>
+    <p>A continuación hacemos una inspección de los datos para poder categorizarlos en rangos que nos sean útiles para la generación de reglas de asociación.</p>
+    <p>En las siguientes tablas se ven fragmentos de las tablas de sentencias y organismos sin procesar.</p>
     <table class="table" style="margin-left: auto; margin-right: auto;">
     <caption>
     Sentencias Primera Instancia Original
@@ -365,8 +397,6 @@
     </tr>
     </tbody>
     </table>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">organismos <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mostrar</span>(<span class="dt">caption =</span> <span class="st">&quot;Organismos&quot;</span>)</code></pre></div>
     <table class="table" style="margin-left: auto; margin-right: auto;">
     <caption>
     Organismos
@@ -600,17 +630,10 @@
     </tr>
     </tbody>
     </table>
-    <p>Quitamos los tipos de procesos “Monitorios”, ya que son de mero trámite y no interesan en el análisis</p>
+    <p>Se quitan los tipos de procesos “Monitorios”, ya que son de mero trámite y no interesan en el análisis. Se eliminan 13687registros.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">grepl</span>(<span class="st">&quot;MONITORIO&quot;</span>, tproc))</code></pre></div>
-    <p>Calcula duracion como Fecha de Resolucion - Fecha de inicio</p>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">finicio =</span> lubridate<span class="op">::</span><span class="kw">dmy</span>(finicio)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">fres =</span> lubridate<span class="op">::</span><span class="kw">dmy</span>(fres)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">duracion =</span> fres <span class="op">-</span><span class="st"> </span>finicio)
-    
-    sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mostrar</span>(<span class="dt">caption =</span> <span class="st">&quot;Sentencias con duración&quot;)</span></code></pre></div>
+    <p>Se calcula duración como Fecha de Resolución menos Fecha de inicio, se genera una nueva columna “duracion” y, en la siguiente gráfica, se muestra un fragmento de la nueva tabla.</p>
     <table class="table" style="margin-left: auto; margin-right: auto;">
     <caption>
     Sentencias con duración
@@ -928,12 +951,17 @@
     </tr>
     </tbody>
     </table>
-    <p>Eliminamos filas que tienen datos invalidos de fecha (datos nulos o futuros por error de tipeo) Reemplazamos los datos NA de reccap por cero.</p>
+    <p>Se eliminan las filas que tienen datos inválidos de fecha (datos nulos o futuros por error de tipeo). Se eliminan 16 registros.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(finicio)) <span class="op">%&gt;%</span>
     <span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(fres)) <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">filter</span>(fres <span class="op">&lt;</span><span class="st"> &#39;2018-09-01&#39;</span>, finicio <span class="op">&lt;</span><span class="st"> &#39;2018-09-01&#39;</span>)</code></pre></div>
-    <p>Calcula los cuartiles de duración por cada tipo de proceso (tproc), y se clasifica en rapido / normal / demorado si duracion es mayor a media de tproc utilizando one hot encoding.</p>
+    <p>Se calculan los cuartiles 25% y 75% de duración por cada tipo de proceso (tproc), y con estos parámetros se clasifican en rápido, normal o demorado si duración se encuentra en cada uno de los rangos definidos.</p>
+    <ul>
+    <li>Rápido: duración menor al cuartil 25%</li>
+    <li>Normal: duración entre el cuartil 25% y el 75%.</li>
+    <li>Demorado: duración mayor al cuartil 75%.</li>
+    </ul>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">demora &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">group_by</span>(tproc) <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">summarise</span>(<span class="dt">techo_rapido=</span><span class="kw">quantile</span>(duracion, <span class="dt">probs=</span><span class="fl">0.25</span>),
@@ -942,12 +970,12 @@
     sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">left_join</span>(demora, <span class="dt">by=</span><span class="st">&quot;tproc&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rapido =</span> duracion <span class="op">&lt;=</span><span class="st"> </span>techo_rapido) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">normal =</span> duracion <span class="op">&gt;</span><span class="st"> </span>techo_rapido <span class="op">&amp;</span><span class="st"> </span>duracion <span class="op">&lt;</span><span class="st"> </span>piso_demorado) <span class="op">%&gt;%</span><span class="st"> </span>
+    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">normal =</span> duracion <span class="op">&gt;</span><span class="st"> </span>techo_rapido <span class="op">&amp;</span><span class="st"> </span>duracion 
+             <span class="op">&lt;</span><span class="st"> </span>piso_demorado) <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">demorado =</span> duracion <span class="op">&gt;=</span><span class="st"> </span>piso_demorado) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>duracion, <span class="op">-</span>techo_rapido, <span class="op">-</span>piso_demorado) <span class="co"># quitando columnas temporales </span></code></pre></div>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tproc =</span> <span class="kw">str_trunc</span>(tproc, <span class="dv">20</span>))<span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mostrar</span>(<span class="dt">caption =</span> <span class="st">&quot;Agregando columnas demora&quot;</span>) </code></pre></div>
+    <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>duracion, <span class="op">-</span>techo_rapido, <span class="op">-</span>piso_demorado) 
+    <span class="co"># quitando columnas temporales </span></code></pre></div>
+    <p>En al siguiente tabla se muestra un fragmento de los datos con los cambios realizados.</p>
     <table class="table" style="margin-left: auto; margin-right: auto;">
     <caption>
     Agregando columnas demora
@@ -1307,21 +1335,15 @@
     </tr>
     </tbody>
     </table>
-    <p>Agrega datos de organismos para tenerlos separados por columna, actualmente se encuentra en columna iep.</p>
+    <p>Se agregan los datos de los organismos para tenerlos separados por columna, actualmente el dato se encontraba en columna iep.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">organismos &lt;-<span class="st"> </span>organismos <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">select</span>(organismo, circunscripcion, localidad, materia)
     
     sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">left_join</span>(organismos, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&#39;iep&#39;</span>=<span class="st">&#39;organismo&#39;</span>))</code></pre></div>
-    <p>Exploremos la variable capital reclamado para definir los rangos</p>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">histograma &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
-    <span class="st">  </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">log</span>(reccap)))
-    
-    histograma</code></pre></div>
-    <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-    <p><img src="TPMineria_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
-    <p>Calculamos los cuartiles para ver si nos sirven para parametrizar (reccap)</p>
+    <p>Se explora la variable capital reclamado, para definir los rangos y categorizar, graficando un histograma del logaritmo.</p>
+    <p><img src="TPMineria_files/figure-html/unnamed-chunk-11-1.png" width="384" /></p>
+    <p>Se calculan los cuartiles para evaluar si sirven para parametrizar el capital reclamado (reccap).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="st">&#39;1º Curtil:&#39;</span>)</code></pre></div>
     <pre><code>## [1] &quot;1º Curtil:&quot;</code></pre>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">quantile</span>(<span class="kw">pull</span>(sentencias_1c[,<span class="st">&#39;reccap&#39;</span>]),.<span class="dv">25</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</code></pre></div>
@@ -1338,7 +1360,7 @@
     <pre><code>## 75% 
     ##   0</code></pre>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#View(sentencias_1c)</span></code></pre></div>
-    <p>Como dos de los curtiles son cero, elimino los ceros y vuelvo a calcular los cuartiles.</p>
+    <p>Como los todos los cuartiles obtenidos son cero, se vuelven a calcular los cuartiles sin los datos ceros.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#reccap_not_cero &lt;- which(sentencias_1c$reccap != 0)</span>
     
     <span class="kw">print</span>(<span class="st">&#39;1º Curtil:&#39;</span>)</code></pre></div>
@@ -1360,32 +1382,42 @@
     
     sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_0 =</span> reccap <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_1 =</span> (reccap <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">25</span>)) <span class="op">&amp;</span><span class="st"> </span>(reccap<span class="op">!=</span><span class="dv">0</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_2 =</span> (reccap <span class="op">&gt;=</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">25</span>)) <span class="op">&amp;</span><span class="st"> </span>(reccap <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">50</span>))) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_3 =</span> (reccap <span class="op">&gt;=</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">50</span>)) <span class="op">&amp;</span><span class="st"> </span>(reccap <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">75</span>))) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_4 =</span> (reccap <span class="op">&gt;=</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">75</span>))) </code></pre></div>
-    <p>Separo la columna justiciables en 4 rangos para poder aplicar apriori.</p>
+    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_1 =</span> (reccap <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(
+        sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">25</span>)) <span class="op">&amp;</span><span class="st"> </span>(reccap<span class="op">!=</span><span class="dv">0</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_2 =</span> (reccap <span class="op">&gt;=</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(
+        sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">25</span>)) <span class="op">&amp;</span><span class="st"> </span>(reccap <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(
+          sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">50</span>))) <span class="op">%&gt;%</span><span class="st"> </span>
+    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_3 =</span> (reccap <span class="op">&gt;=</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(
+        sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">50</span>)) <span class="op">&amp;</span><span class="st"> </span>(reccap <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(
+          sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">75</span>))) <span class="op">%&gt;%</span><span class="st"> </span>
+    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">reccap_4 =</span> (reccap <span class="op">&gt;=</span><span class="st"> </span><span class="kw">quantile</span>(<span class="kw">which</span>(
+        sentencias_1c<span class="op">$</span>reccap <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>),.<span class="dv">75</span>))) </code></pre></div>
+    <p>A partir de los cuartiles obtenidos, se generan las siguientes categorías:</p>
+    <ul>
+    <li>Capital reclamado igual a cero.</li>
+    <li>Capital reclamado distinto de cero y menor al cuartil 25%.</li>
+    <li>Capital reclamado entre los cuartiles 25% y 50%.</li>
+    <li>Capital reclamado entre los cuartiles 50% y 75%.</li>
+    <li>Capital reclamado mayor al cuartil 75%.</li>
+    </ul>
+    <p>Se separa la columna justiciables en los siguientes 6 rangos para categorizar.</p>
+    <ul>
+    <li>Justiciables igual a 1</li>
+    <li>Justiciables igual a 2 o 3</li>
+    <li>Justiciables igual a 4 o 5</li>
+    <li>Justiciables igual a 6 o 7</li>
+    <li>Justiciables igual a 8 o 9</li>
+    <li>Justiciables mayor a 9</li>
+    </ul>
+    <p>Se expresan las variables localidad, tipo de proceso, circunscripción y materia como factor, esto se requiere para aplicar apriori.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">justiciables0_1 =</span> justiciables <span class="op">&lt;</span><span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">justiciables2_3 =</span> (justiciables <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>) <span class="op">&amp;</span><span class="st"> </span>(justiciables <span class="op">&lt;</span><span class="st"> </span><span class="dv">4</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">justiciables4_5 =</span> (justiciables <span class="op">&gt;</span><span class="st"> </span><span class="dv">3</span>) <span class="op">&amp;</span><span class="st"> </span>(justiciables <span class="op">&lt;</span><span class="st"> </span><span class="dv">6</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">justiciables6_7 =</span> (justiciables <span class="op">&gt;</span><span class="st"> </span><span class="dv">5</span>) <span class="op">&amp;</span><span class="st"> </span>(justiciables <span class="op">&lt;</span><span class="st"> </span><span class="dv">8</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">justiciables8_9 =</span> (justiciables <span class="op">&gt;</span><span class="st"> </span><span class="dv">7</span>) <span class="op">&amp;</span><span class="st"> </span>(justiciables <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">justiciables10_N =</span> justiciables <span class="op">&gt;</span><span class="st"> </span><span class="dv">9</span>)</code></pre></div>
-    <p>Separamos Localidad y Circunscripcion en columnas.</p>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">localidad =</span> <span class="kw">as.factor</span>(localidad))</code></pre></div>
-    <p>Convertimos columna tproc en categórica, esto es requerido por el algoritmo</p>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
+    <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">localidad =</span> <span class="kw">as.factor</span>(localidad))
+    
+    sentencias_1c &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">tproc =</span> <span class="kw">as.factor</span>(tproc)) <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">circunscripcion =</span> <span class="kw">as.factor</span>(circunscripcion)) <span class="op">%&gt;%</span><span class="st"> </span>
     <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">materia =</span> <span class="kw">as.factor</span>(materia))</code></pre></div>
-    <p>Tomos solamente las columnas tipo booleanos y categóricas.</p>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sentencias_final &lt;-<span class="st"> </span>sentencias_1c <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>nro, <span class="op">-</span>as, <span class="op">-</span>ccon, <span class="op">-</span>finicio, <span class="op">-</span>fres, <span class="op">-</span>fdesp, <span class="op">-</span>fvenc1, <span class="op">-</span>fvenc2, <span class="op">-</span>tres, <span class="op">-</span>justiciables, <span class="op">-</span>reccap, <span class="op">-</span>iep, <span class="op">-</span>localidad)
-    
-    sentencias_final <span class="op">%&gt;%</span><span class="st"> </span>
-    <span class="st">  </span><span class="kw">mostrar</span>(<span class="dt">caption =</span> <span class="st">&quot;Tabla final a utilizar en el algoritmo apriori&quot;</span>)</code></pre></div>
+    <p>Generamos una nueva tabla con las columnas tipo booleanos y categóricas. Se muestra un fragmento en la siguiente tabla.</p>
     <table class="table" style="margin-left: auto; margin-right: auto;">
     <caption>
     Tabla final a utilizar en el algoritmo apriori
@@ -1766,12 +1798,20 @@
     </tr>
     </tbody>
     </table>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules &lt;-<span class="st"> </span><span class="kw">apriori</span>(sentencias_final, <span class="dt">parameter =</span> <span class="kw">list</span>(<span class="dt">supp=</span><span class="fl">0.01</span>, <span class="dt">conf=</span><span class="fl">0.7</span>, <span class="dt">minlen=</span><span class="dv">2</span>), <span class="dt">appearance =</span> <span class="kw">list</span>(<span class="dt">rhs=</span><span class="kw">c</span>(<span class="st">&quot;demorado&quot;</span>, <span class="st">&quot;rapido&quot;</span>)))</code></pre></div>
+    </div>
+    </div>
+    <div id="generacion-de-reglas" class="section level1">
+    <h1><span class="header-section-number">3</span> Generación de Reglas</h1>
+    <p>Con los datos ya pre-procesados aplicamos apriori para generar las reglas de asociación. Inicialmente tomamos como valores límite un soporte de 0.001 y una confianza de 0.5.</p>
+    
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules &lt;-<span class="st"> </span><span class="kw">apriori</span>(sentencias_final, <span class="dt">parameter =</span> <span class="kw">list</span>(
+      <span class="dt">supp=</span><span class="fl">0.001</span>, <span class="dt">conf=</span><span class="fl">0.5</span>, <span class="dt">minlen=</span><span class="dv">2</span>), <span class="dt">appearance =</span> <span class="kw">list</span>(
+        <span class="dt">rhs=</span><span class="kw">c</span>(<span class="st">&quot;demorado&quot;</span>, <span class="st">&quot;rapido&quot;</span>)))</code></pre></div>
     <pre><code>## Apriori
     ## 
     ## Parameter specification:
     ##  confidence minval smax arem  aval originalSupport maxtime support minlen
-    ##         0.7    0.1    1 none FALSE            TRUE       5    0.01      2
+    ##         0.5    0.1    1 none FALSE            TRUE       5   0.001      2
     ##  maxlen target   ext
     ##      10  rules FALSE
     ## 
@@ -1779,134 +1819,219 @@
     ##  filter tree heap memopt load sort verbose
     ##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
     ## 
-    ## Absolute minimum support count: 115 
+    ## Absolute minimum support count: 11 
     ## 
     ## set item appearances ...[2 item(s)] done [0.00s].
-    ## set transactions ...[275 item(s), 11576 transaction(s)] done [0.00s].
-    ## sorting and recoding items ... [46 item(s)] done [0.00s].
-    ## creating transaction tree ... done [0.00s].
-    ## checking subsets of size 1 2 3 4 5 6 done [0.00s].
-    ## writing ... [8 rule(s)] done [0.00s].
+    ## set transactions ...[275 item(s), 11576 transaction(s)] done [0.01s].
+    ## sorting and recoding items ... [105 item(s)] done [0.00s].
+    ## creating transaction tree ... done [0.01s].
+    ## checking subsets of size 1 2 3 4 5 6 done [0.01s].
+    ## writing ... [310 rule(s)] done [0.00s].
     ## creating S4 object  ... done [0.00s].</code></pre>
     <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(rules)</code></pre></div>
-    <pre><code>## set of 8 rules
+    <pre><code>## set of 310 rules
     ## 
     ## rule length distribution (lhs + rhs):sizes
-    ## 3 4 5 6 
-    ## 1 3 3 1 
+    ##   2   3   4   5   6 
+    ##   2  47 126 107  28 
     ## 
     ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##     3.0     4.0     4.5     4.5     5.0     6.0 
+    ##   2.000   4.000   4.000   4.361   5.000   6.000 
     ## 
     ## summary of quality measures:
-    ##     support          confidence          lift           count      
-    ##  Min.   :0.01002   Min.   :0.7134   Min.   :2.674   Min.   :116.0  
-    ##  1st Qu.:0.01002   1st Qu.:0.7147   1st Qu.:2.679   1st Qu.:116.0  
-    ##  Median :0.01006   Median :0.7367   Median :2.762   Median :116.5  
-    ##  Mean   :0.01009   Mean   :0.7362   Mean   :2.760   Mean   :116.8  
-    ##  3rd Qu.:0.01013   3rd Qu.:0.7582   3rd Qu.:2.842   3rd Qu.:117.2  
-    ##  Max.   :0.01019   Max.   :0.7582   Max.   :2.842   Max.   :118.0  
+    ##     support           confidence          lift           count      
+    ##  Min.   :0.001037   Min.   :0.5000   Min.   :1.837   Min.   : 12.0  
+    ##  1st Qu.:0.001296   1st Qu.:0.5385   1st Qu.:2.004   1st Qu.: 15.0  
+    ##  Median :0.001814   Median :0.6197   Median :2.321   Median : 21.0  
+    ##  Mean   :0.003352   Mean   :0.6674   Mean   :2.474   Mean   : 38.8  
+    ##  3rd Qu.:0.003455   3rd Qu.:0.7582   3rd Qu.:2.840   3rd Qu.: 40.0  
+    ##  Max.   :0.014599   Max.   :1.0000   Max.   :3.749   Max.   :169.0  
     ## 
     ## mining info:
     ##              data ntransactions support confidence
-    ##  sentencias_final         11576    0.01        0.7</code></pre>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">inspect</span>(rules[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
-    <pre><code>##     lhs                          rhs           support confidence     lift count
-    ## [1] {circunscripcion=Uruguay,                                                   
-    ##      reccap_1}                =&gt; {demorado} 0.01019350  0.7151515 2.680892   118
-    ## [2] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      reccap_1}                =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [3] {circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1}                =&gt; {demorado} 0.01019350  0.7151515 2.680892   118
-    ## [4] {circunscripcion=Uruguay,                                                   
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01010712  0.7134146 2.674381   117
-    ## [5] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1}                =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [6] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [7] {circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01010712  0.7134146 2.674381   117
-    ## [8] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01002073  0.7581699 2.842155   116</code></pre>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">top.confidence &lt;-<span class="st"> </span><span class="kw">sort</span>(rules, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>, <span class="dt">na.last =</span> <span class="ot">NA</span>, <span class="dt">by =</span> <span class="st">&quot;confidence&quot;</span>)
-    <span class="kw">inspect</span>(top.confidence[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
-    <pre><code>##     lhs                          rhs           support confidence     lift count
-    ## [1] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      reccap_1}                =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [2] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1}                =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [3] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [4] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [5] {circunscripcion=Uruguay,                                                   
-    ##      reccap_1}                =&gt; {demorado} 0.01019350  0.7151515 2.680892   118
-    ## [6] {circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1}                =&gt; {demorado} 0.01019350  0.7151515 2.680892   118
-    ## [7] {circunscripcion=Uruguay,                                                   
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01010712  0.7134146 2.674381   117
-    ## [8] {circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01010712  0.7134146 2.674381   117</code></pre>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">top.support &lt;-<span class="st"> </span><span class="kw">sort</span>(rules, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>, <span class="dt">na.last =</span> <span class="ot">NA</span>, <span class="dt">by =</span> <span class="st">&quot;support&quot;</span>)
-    <span class="kw">inspect</span>(top.support[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
-    <pre><code>##     lhs                          rhs           support confidence     lift count
-    ## [1] {circunscripcion=Uruguay,                                                   
-    ##      reccap_1}                =&gt; {demorado} 0.01019350  0.7151515 2.680892   118
-    ## [2] {circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1}                =&gt; {demorado} 0.01019350  0.7151515 2.680892   118
-    ## [3] {circunscripcion=Uruguay,                                                   
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01010712  0.7134146 2.674381   117
-    ## [4] {circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01010712  0.7134146 2.674381   117
-    ## [5] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      reccap_1}                =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [6] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1}                =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [7] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01002073  0.7581699 2.842155   116
-    ## [8] {tproc=APREMIO,                                                             
-    ##      circunscripcion=Uruguay,                                                   
-    ##      materia=paz,                                                               
-    ##      reccap_1,                                                                  
-    ##      justiciables2_3}         =&gt; {demorado} 0.01002073  0.7581699 2.842155   116</code></pre>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(arulesViz)</code></pre></div>
-    <pre><code>## Loading required package: grid</code></pre>
-    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(rules)</code></pre></div>
+    ##  sentencias_final         11576   0.001        0.5</code></pre>
+    
+    <p>Graficamos las reglas para ver como varia el soporte y la confianza.</p>
+    <p><img src="TPMineria_files/figure-html/unnamed-chunk-18-1.png" width="432" /> Se grafica nuevamente pero incluyendo en dato del orden de las reglas con colores.</p>
     <pre><code>## To reduce overplotting, jitter is added! Use jitter = 0 to prevent jitter.</code></pre>
-    <p><img src="TPMineria_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+    <p><img src="TPMineria_files/figure-html/unnamed-chunk-19-1.png" width="432" /></p>
+    <p>Se realiza un inspect de las primeras reglas. Se puede ver que hay reglas que no son de interés por tener baja confianza.</p>
+    
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">inspect</span>(rules[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
+    <pre><code>##     lhs                                          rhs            support confidence     lift count
+    ## [1] {circunscripcion=San Salvador}            =&gt; {rapido}   0.002505183  0.5000000 1.836877    29
+    ## [2] {justiciables10_N}                        =&gt; {demorado} 0.004060124  0.5164835 1.936144    47
+    ## [3] {tproc=EJECUTIVO,                                                                            
+    ##      circunscripcion=San Salvador}            =&gt; {rapido}   0.001295784  0.5555556 2.040975    15
+    ## [4] {circunscripcion=San Salvador,                                                               
+    ##      materia=paz}                             =&gt; {rapido}   0.001814098  0.6176471 2.269084    21
+    ## [5] {circunscripcion=San Salvador,                                                               
+    ##      reccap_0}                                =&gt; {rapido}   0.002418798  0.5714286 2.099288    28
+    ## [6] {circunscripcion=San Salvador,                                                               
+    ##      justiciables2_3}                         =&gt; {rapido}   0.002159641  0.5555556 2.040975    25
+    ## [7] {tproc=DIVORCIO POR MUTUO CONSENTIMIENTO,                                                    
+    ##      circunscripcion=Gualeguay}               =&gt; {rapido}   0.001641327  0.9047619 3.323873    19
+    ## [8] {materia=cco,                                                                                
+    ##      justiciables10_N}                        =&gt; {demorado} 0.002764340  0.5000000 1.874352    32</code></pre>
+    
+    <p>Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas son similares pero solamente difieren en su nivel especificidad, por esto deben ser eliminadas para el análisis. </p>
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules &lt;-<span class="st"> </span>rules[<span class="op">!</span><span class="kw">is.redundant</span>(rules)]
+    <span class="kw">inspect</span>(rules[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
+    <pre><code>##     lhs                                          rhs            support confidence     lift count
+    ## [1] {circunscripcion=San Salvador}            =&gt; {rapido}   0.002505183  0.5000000 1.836877    29
+    ## [2] {justiciables10_N}                        =&gt; {demorado} 0.004060124  0.5164835 1.936144    47
+    ## [3] {tproc=EJECUTIVO,                                                                            
+    ##      circunscripcion=San Salvador}            =&gt; {rapido}   0.001295784  0.5555556 2.040975    15
+    ## [4] {circunscripcion=San Salvador,                                                               
+    ##      materia=paz}                             =&gt; {rapido}   0.001814098  0.6176471 2.269084    21
+    ## [5] {circunscripcion=San Salvador,                                                               
+    ##      reccap_0}                                =&gt; {rapido}   0.002418798  0.5714286 2.099288    28
+    ## [6] {circunscripcion=San Salvador,                                                               
+    ##      justiciables2_3}                         =&gt; {rapido}   0.002159641  0.5555556 2.040975    25
+    ## [7] {tproc=DIVORCIO POR MUTUO CONSENTIMIENTO,                                                    
+    ##      circunscripcion=Gualeguay}               =&gt; {rapido}   0.001641327  0.9047619 3.323873    19
+    ## [8] {circunscripcion=Paraná,                                                                     
+    ##      justiciables10_N}                        =&gt; {demorado} 0.003023497  0.5384615 2.018533    35</code></pre>
+    
+    <p>Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.</p>
+    
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">top.confidence &lt;-<span class="st"> </span><span class="kw">sort</span>(rules, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>, 
+                           <span class="dt">na.last =</span> <span class="ot">NA</span>, <span class="dt">by =</span> <span class="st">&quot;confidence&quot;</span>)
+    <span class="kw">inspect</span>(top.confidence[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
+    <pre><code>##     lhs                                rhs            support confidence     lift count
+    ## [1] {tproc=ACCION DE AMPARO,                                                           
+    ##      circunscripcion=Nogoyá,                                                           
+    ##      justiciables0_1}               =&gt; {demorado} 0.001382170  1.0000000 3.748705    16
+    ## [2] {tproc=EJECUTIVO,                                                                  
+    ##      circunscripcion=Paraná,                                                           
+    ##      reccap_1,                                                                         
+    ##      justiciables0_1}               =&gt; {rapido}   0.001295784  1.0000000 3.673754    15
+    ## [3] {tproc=ACCION DE AMPARO,                                                           
+    ##      circunscripcion=Nogoyá,                                                           
+    ##      materia=paz}                   =&gt; {demorado} 0.002591569  0.9677419 3.627779    30
+    ## [4] {tproc=DIVORCIO,                                                                   
+    ##      circunscripcion=Gualeguay}     =&gt; {rapido}   0.002332412  0.9642857 3.542549    27
+    ## [5] {tproc=EJECUTIVO,                                                                  
+    ##      circunscripcion=Paraná,                                                           
+    ##      justiciables0_1}               =&gt; {rapido}   0.001727713  0.9523810 3.498814    20
+    ## [6] {circunscripcion=Paraná,                                                           
+    ##      reccap_1,                                                                         
+    ##      justiciables0_1}               =&gt; {rapido}   0.001382170  0.9411765 3.457651    16
+    ## [7] {tproc=EJECUTIVO,                                                                  
+    ##      reccap_1,                                                                         
+    ##      justiciables0_1}               =&gt; {rapido}   0.001295784  0.9375000 3.444145    15
+    ## [8] {tproc=EJECUCION DE HONORARIOS,                                                    
+    ##      circunscripcion=Paraná,                                                           
+    ##      materia=cco,                                                                      
+    ##      justiciables0_1}               =&gt; {rapido}   0.001209399  0.9333333 3.428837    14</code></pre>
+    
+    
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">top.support &lt;-<span class="st"> </span><span class="kw">sort</span>(rules, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>, 
+                        <span class="dt">na.last =</span> <span class="ot">NA</span>, <span class="dt">by =</span> <span class="st">&quot;support&quot;</span>)
+    <span class="kw">inspect</span>(top.support[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
+    <pre><code>##     lhs                               rhs           support confidence     lift count
+    ## [1] {tproc=APREMIO,                                                                  
+    ##      reccap_1}                     =&gt; {demorado} 0.01459917  0.5577558 2.090862   169
+    ## [2] {tproc=APREMIO,                                                                  
+    ##      reccap_1,                                                                       
+    ##      justiciables2_3}              =&gt; {demorado} 0.01451279  0.5600000 2.099275   168
+    ## [3] {tproc=APREMIO,                                                                  
+    ##      materia=paz,                                                                    
+    ##      reccap_1}                     =&gt; {demorado} 0.01442640  0.5585284 2.093758   167
+    ## [4] {tproc=APREMIO,                                                                  
+    ##      materia=paz,                                                                    
+    ##      reccap_1,                                                                       
+    ##      justiciables2_3}              =&gt; {demorado} 0.01434001  0.5608108 2.102314   166
+    ## [5] {tproc=APREMIO,                                                                  
+    ##      reccap_0}                     =&gt; {rapido}   0.01416724  0.6007326 2.206944   164
+    ## [6] {circunscripcion=Uruguay,                                                        
+    ##      justiciables2_3}              =&gt; {demorado} 0.01338977  0.5000000 1.874352   155
+    ## [7] {tproc=APREMIO,                                                                  
+    ##      reccap_0,                                                                       
+    ##      justiciables2_3}              =&gt; {rapido}   0.01321700  0.6023622 2.212931   153
+    ## [8] {tproc=EJECUTIVO,                                                                
+    ##      circunscripcion=Gualeguaychú} =&gt; {demorado} 0.01278507  0.5362319 2.010175   148</code></pre>
+    
+    <p>Se toman las reglas ordenandas por confianza para analizar.</p>
+    
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(top.confidence)</code></pre></div>
+    <pre><code>## set of 140 rules
+    ## 
+    ## rule length distribution (lhs + rhs):sizes
+    ##  2  3  4  5  6 
+    ##  2 46 70 21  1 
+    ## 
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##   2.000   3.000   4.000   3.807   4.000   6.000 
+    ## 
+    ## summary of quality measures:
+    ##     support           confidence          lift           count       
+    ##  Min.   :0.001037   Min.   :0.5000   Min.   :1.837   Min.   : 12.00  
+    ##  1st Qu.:0.001296   1st Qu.:0.5351   1st Qu.:1.988   1st Qu.: 15.00  
+    ##  Median :0.001814   Median :0.5888   Median :2.204   Median : 21.00  
+    ##  Mean   :0.003960   Mean   :0.6396   Mean   :2.369   Mean   : 45.84  
+    ##  3rd Qu.:0.004730   3rd Qu.:0.7103   3rd Qu.:2.657   3rd Qu.: 54.75  
+    ##  Max.   :0.014599   Max.   :1.0000   Max.   :3.749   Max.   :169.00  
+    ## 
+    ## mining info:
+    ##              data ntransactions support confidence
+    ##  sentencias_final         11576   0.001        0.5</code></pre>
+    <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">inspect</span>(top.confidence[<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>])</code></pre></div>
+    <pre><code>##     lhs                                rhs            support confidence     lift count
+    ## [1] {tproc=ACCION DE AMPARO,                                                           
+    ##      circunscripcion=Nogoyá,                                                           
+    ##      justiciables0_1}               =&gt; {demorado} 0.001382170  1.0000000 3.748705    16
+    ## [2] {tproc=EJECUTIVO,                                                                  
+    ##      circunscripcion=Paraná,                                                           
+    ##      reccap_1,                                                                         
+    ##      justiciables0_1}               =&gt; {rapido}   0.001295784  1.0000000 3.673754    15
+    ## [3] {tproc=ACCION DE AMPARO,                                                           
+    ##      circunscripcion=Nogoyá,                                                           
+    ##      materia=paz}                   =&gt; {demorado} 0.002591569  0.9677419 3.627779    30
+    ## [4] {tproc=DIVORCIO,                                                                   
+    ##      circunscripcion=Gualeguay}     =&gt; {rapido}   0.002332412  0.9642857 3.542549    27
+    ## [5] {tproc=EJECUTIVO,                                                                  
+    ##      circunscripcion=Paraná,                                                           
+    ##      justiciables0_1}               =&gt; {rapido}   0.001727713  0.9523810 3.498814    20
+    ## [6] {circunscripcion=Paraná,                                                           
+    ##      reccap_1,                                                                         
+    ##      justiciables0_1}               =&gt; {rapido}   0.001382170  0.9411765 3.457651    16
+    ## [7] {tproc=EJECUTIVO,                                                                  
+    ##      reccap_1,                                                                         
+    ##      justiciables0_1}               =&gt; {rapido}   0.001295784  0.9375000 3.444145    15
+    ## [8] {tproc=EJECUCION DE HONORARIOS,                                                    
+    ##      circunscripcion=Paraná,                                                           
+    ##      materia=cco,                                                                      
+    ##      justiciables0_1}               =&gt; {rapido}   0.001209399  0.9333333 3.428837    14</code></pre>
+    
+    </div>
+    <div id="resultados-discusion" class="section level1">
+    <h1><span class="header-section-number">4</span> Resultados / Discusión</h1>
+    <div id="asociaciones-destacadas" class="section level2">
+    <h2><span class="header-section-number">4.1</span> Asociaciones destacadas:</h2>
+    <ul>
+    <li>tipo de proceso <em>ACCIÓN DE AMPARO</em> en las circunscripción de <strong>Nogoyá</strong> como <em>demoradas</em> con respecto a los valores provinciales.</li>
+    <li><em>APREMIO</em> con capital reclamado <em>recap_1</em> aparecen en gral <em>demorados</em>, sin embargo, cuando el capital reclamado es <em>recap_0</em>, se resuelven <em>rápido</em>.</li>
+    <li>Los procesos <em>EJECUTIVO</em> en <em>Gualeguaychú</em> aparecen como <em>demorados</em>.</li>
+    </ul>
+    <p>Han aparecido reglas que eran de esperarse debido, por ejemplo, dado un tipo de proceso, al incrementarse el capital reclamado o el nro de justiciables, se puede inferir que todo el proceso se hace más complejo y se elongue en el tiempo su resolución.</p>
+    <p>Sin embargo, <em>no hay razones</em> de tipo procesal, para que <em>diferentes circunscrupciones/jurisdicciones presenten diferencias</em>, las mismas, <em>son las más significativas para el análisis</em> y requieren un análisis más profundo. Las mismas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.</p>
+    </div>
+    </div>
+    <div id="conclusiones" class="section level1">
+    <h1><span class="header-section-number">5</span> Conclusiones</h1>
+    <p>Las técnicas empleadas aquí han dado como resultado reglas interesantes para investigar, ya que a priori no se esperaban circunscripciones asociadas a diferencias en tiempos de resolución de sentencia, dichas diferencias pueden estar asociadas al modo de trabajo en esas localidades, quizás a la dotación de personal, capacitaciones de los mismos, u otras razones que requieren investigación específica.</p>
+    <p>En cuanto a las herramientas, el preprocesamiento de datos y la generación de reglas han resultado muy sencillo con las técnicas utilizadas, así mismo el formato seleccionado para la realización del informe, permite hacer evaluaciones interactivas mientras se conforma el documento, como así también hace muy sencillo trabajar de manera colaborativa ya que en el mismo documento está el código que se ha utilizado para manipular los datos y generar las reglas.</p>
+    </div>
+    <div id="referencias" class="section level1">
+    <h1><span class="header-section-number">6</span> Referencias</h1>
+    <p>…</p>
+    <div id="refs" class="references">
+    <div id="ref-R">
+    <p>R Comunity. n.d. “The R Project for Statistical Computing.” <a href="https://www.r-project.org" class="uri">https://www.r-project.org</a>.</p>
+    </div>
+    </div>
+    </div>
 
     </body>
 

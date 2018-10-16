@@ -242,8 +242,12 @@ debido a que cada tipo de proceso, por su naturaleza, implica diferente
 tratamiento por parte de los organismos (juzgados) y por ende supone
 demoras esperables diferentes.
 
-El procesamiento y análisis de datos se ha realizado con el lenguaje R
-v3.4.4 \autocite{xiang2007robust}
+El procesamiento y análisis de datos se ha realizado con el
+\href{https://www.r-project.org}{lenguaje R} v3.4.4 \autocite{R},
+utilizando \href{}{dplyr} para preprocesamiento de datos,
+\href{}{arules} para creación de reglas de asociación y
+\href{}{arulesViz} para visualizarlas. El presente informe se ha
+realizado en Rmd para producir resultados reproducibles XXX cita.
 
 \section{Procesamiento de Datos}\label{procesamiento-de-datos}
 
@@ -768,12 +772,12 @@ soporte de 0.001 y una confianza de 0.5.
 ## Absolute minimum support count: 11 
 ## 
 ## set item appearances ...[2 item(s)] done [0.00s].
-## set transactions ...[275 item(s), 11576 transaction(s)] done [0.00s].
+## set transactions ...[275 item(s), 11576 transaction(s)] done [0.01s].
 ## sorting and recoding items ... [105 item(s)] done [0.00s].
-## creating transaction tree ... done [0.00s].
+## creating transaction tree ... done [0.01s].
 ## checking subsets of size 1 2 3 4 5 6 done [0.00s].
 ## writing ... [310 rule(s)] done [0.00s].
-## creating S4 object  ... done [0.00s].
+## creating S4 object  ... done [0.01s].
 \end{verbatim}
 
 \begin{Shaded}
@@ -1068,8 +1072,26 @@ diferencias.
 
 \section{Conclusiones}\label{conclusiones}
 
-\section{References}\label{references}
+Las técnicas empleadas aquí han dado como resultado reglas interesantes
+para investigar, ya que a priori no se esperaban circunscripciones
+asociadas a diferencias en tiempos de resolución de sentencia, dichas
+diferencias pueden estar asociadas al modo de trabajo en esas
+localidades, quizás a la dotación de personal, capacitaciones de los
+mismos, u otras razones que requieren investigación específica.
+
+En cuanto a las herramientas, el preprocesamiento de datos y la
+generación de reglas han resultado muy sencillo con las técnicas
+utilizadas, así mismo el formato seleccionado para la realización del
+informe, permite hacer evaluaciones interactivas mientras se conforma el
+documento, como así también hace muy sencillo trabajar de manera
+colaborativa ya que en el mismo documento está el código que se ha
+utilizado para manipular los datos y generar las reglas.
+
+\section{Referencias}\label{referencias}
 
 \ldots{}
+\newpage
+
+\printbibliography
 
 \end{document}

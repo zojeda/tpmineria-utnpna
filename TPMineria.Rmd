@@ -73,7 +73,7 @@ Se cuenta con una base de datos de resoluciones correspondientes al Superior Tri
 
 El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.
 
-El procesamiento y análisis de datos se ha realizado con el lenguaje R v3.4.4 [@R]
+El procesamiento y análisis de datos se ha realizado con el [lenguaje R](https://www.r-project.org) v3.4.4 [@R], utilizando [dplyr]() para preprocesamiento de datos, [arules]() para creación de reglas de asociación y [arulesViz]() para visualizarlas. El presente informe se ha realizado en Rmd para producir resultados reproducibles XXX cita.
 
 # Procesamiento de Datos
 
@@ -377,9 +377,11 @@ Sin embargo, *no hay razones* de tipo procesal, para que *diferentes circunscrup
 
 # Conclusiones
 
+Las técnicas empleadas aquí han dado como resultado reglas interesantes para investigar, ya que a priori no se esperaban circunscripciones asociadas a diferencias en tiempos de resolución de sentencia, dichas diferencias pueden estar asociadas al modo de trabajo en esas localidades, quizás a la dotación de personal, capacitaciones de los mismos, u otras razones que requieren investigación específica.
 
+En cuanto a las herramientas, el preprocesamiento de datos y la generación de reglas han resultado muy sencillo con las técnicas utilizadas, así mismo el formato seleccionado para la realización del informe, permite hacer evaluaciones interactivas mientras se conforma el documento, como así también hace muy sencillo trabajar de manera colaborativa ya que en el mismo documento está el código que se ha utilizado para manipular los datos y generar las reglas.
 
-# References
+# Referencias
 
 
 ...
