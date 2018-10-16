@@ -17,7 +17,7 @@
 \usepackage[normalem]{ulem}
 \usepackage{makecell}
 \usepackage{graphicx}
-
+\usepackage{biblatex}
 %extended enumerate, such as \begin{compactenum}
 \usepackage{paralist}
 
@@ -188,7 +188,7 @@
 %If Title is too long, use \titlerunning
 %\titlerunning{Short Title}
 %Single insitute
-\author{Bodean, Emiliano \& Ojeda, Zacarías}
+\author{Bodean, Emiliano - Ojeda, Zacarías}
 
 %If there are too many authors, use \authorrunning
 %\authorrunning{First Author et al.}
@@ -220,7 +220,7 @@ causas judiciales, en la búsqueda de identificar patrones o asociaciones
 que lleven a diferentes tiempos de demora en los mismos.
 	\end{abstract}
 
-	\keywords{Minería de Datos, sentencia, justicia, demora}
+	\keywords{Minería de Datos, sentencia, justicia, demora, reglas de asociación}
 
 \section{Introducción}\label{introduccion}
 
@@ -241,6 +241,9 @@ El análisis se realiza analizando demoras según el tipo de proceso,
 debido a que cada tipo de proceso, por su naturaleza, implica diferente
 tratamiento por parte de los organismos (juzgados) y por ende supone
 demoras esperables diferentes.
+
+El procesamiento y análisis de datos se ha realizado con el lenguaje R
+v3.4.4 \autocite{xiang2007robust}
 
 \section{Procesamiento de Datos}\label{procesamiento-de-datos}
 
@@ -289,7 +292,7 @@ categorizarlos en rangos que nos sean útiles para la generación de
 reglas de asociación.
 
 En las siguientes tablas se ven fragmentos de las tablas de sentencias y
-organismos son procesar.
+organismos sin procesar.
 
 \rowcolors{2}{gray!6}{white}
 
@@ -351,7 +354,7 @@ X1 & organismo & organismo\_descripcion & email\_oficial & fuero & circunscripci
 
 \rowcolors{2}{white}{white}
 
-Quitamos los tipos de procesos \enquote{Monitorios}, ya que son de mero
+Se quitan los tipos de procesos \enquote{Monitorios}, ya que son de mero
 trámite y no interesan en el análisis. Se eliminan 13687registros.
 
 \begin{Shaded}
@@ -361,9 +364,9 @@ trámite y no interesan en el análisis. Se eliminan 13687registros.
 \end{Highlighting}
 \end{Shaded}
 
-Calcula duración como Fecha de Resolución menos Fecha de inicio,
-generamos una nueva columna \enquote{duracion} y mostramos un fragmento
-de la nueva tabla en la siguiente gráfica.
+Se calcula duración como Fecha de Resolución menos Fecha de inicio, se
+genera una nueva columna \enquote{duracion} y, en la siguiente gráfica,
+se muestra un fragmento de la nueva tabla.
 
 \rowcolors{2}{gray!6}{white}
 
@@ -395,7 +398,7 @@ nro & tproc & as & ccon & finicio & fdesp & fvenc1 & fvenc2 & fres & tres & just
 
 \rowcolors{2}{white}{white}
 
-Eliminamos filas que tienen datos inválidos de fecha (datos nulos o
+Se eliminan las filas que tienen datos inválidos de fecha (datos nulos o
 futuros por error de tipeo). Se eliminan 16 registros.
 
 \begin{Shaded}
@@ -410,8 +413,16 @@ futuros por error de tipeo). Se eliminan 16 registros.
 Se calculan los cuartiles 25\% y 75\% de duración por cada tipo de
 proceso (tproc), y con estos parámetros se clasifican en rápido, normal
 o demorado si duración se encuentra en cada uno de los rangos definidos.
-* Rápido: duración menor al cuartil 25\% * Normal: duración entre el
-cuartil 25\% y el 75\%. * Demorado: duración mayor al cuartil 75\%.
+
+\begin{itemize}
+\tightlist
+\item
+  Rápido: duración menor al cuartil 25\%
+\item
+  Normal: duración entre el cuartil 25\% y el 75\%.
+\item
+  Demorado: duración mayor al cuartil 75\%.
+\end{itemize}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -760,9 +771,9 @@ soporte de 0.001 y una confianza de 0.5.
 ## set transactions ...[275 item(s), 11576 transaction(s)] done [0.00s].
 ## sorting and recoding items ... [105 item(s)] done [0.00s].
 ## creating transaction tree ... done [0.00s].
-## checking subsets of size 1 2 3 4 5 6 done [0.02s].
+## checking subsets of size 1 2 3 4 5 6 done [0.00s].
 ## writing ... [310 rule(s)] done [0.00s].
-## creating S4 object  ... done [0.01s].
+## creating S4 object  ... done [0.00s].
 \end{verbatim}
 
 \begin{Shaded}
@@ -840,6 +851,38 @@ reglas que no son de interés por tener baja confianza.
 
 \normalsize
 
+Se elimianan las reglas redundantes y se imprimen las primeras 8. Se
+puede observar que hay reglas son similares pero solamente difieren en
+su nivel especificidad, por esto deben ser eliminadas para el análisis.
+\scriptsize
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rules <-}\StringTok{ }\NormalTok{rules[}\OperatorTok{!}\KeywordTok{is.redundant}\NormalTok{(rules)]}
+\KeywordTok{inspect}\NormalTok{(rules[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     lhs                                          rhs            support confidence     lift count
+## [1] {circunscripcion=San Salvador}            => {rapido}   0.002505183  0.5000000 1.836877    29
+## [2] {justiciables10_N}                        => {demorado} 0.004060124  0.5164835 1.936144    47
+## [3] {tproc=EJECUTIVO,                                                                            
+##      circunscripcion=San Salvador}            => {rapido}   0.001295784  0.5555556 2.040975    15
+## [4] {circunscripcion=San Salvador,                                                               
+##      materia=paz}                             => {rapido}   0.001814098  0.6176471 2.269084    21
+## [5] {circunscripcion=San Salvador,                                                               
+##      reccap_0}                                => {rapido}   0.002418798  0.5714286 2.099288    28
+## [6] {circunscripcion=San Salvador,                                                               
+##      justiciables2_3}                         => {rapido}   0.002159641  0.5555556 2.040975    25
+## [7] {tproc=DIVORCIO POR MUTUO CONSENTIMIENTO,                                                    
+##      circunscripcion=Gualeguay}               => {rapido}   0.001641327  0.9047619 3.323873    19
+## [8] {circunscripcion=Paraná,                                                                     
+##      justiciables10_N}                        => {demorado} 0.003023497  0.5384615 2.018533    35
+\end{verbatim}
+
+\normalsize
+
 Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 
 \scriptsize
@@ -853,39 +896,32 @@ Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 \end{Shaded}
 
 \begin{verbatim}
-##     lhs                         rhs            support confidence     lift count
-## [1] {tproc=ACCION DE AMPARO,                                                    
-##      circunscripcion=Nogoyá,                                                    
-##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
-## [2] {tproc=ACCION DE AMPARO,                                                    
-##      circunscripcion=Nogoyá,                                                    
-##      materia=paz,                                                               
-##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
-## [3] {tproc=ACCION DE AMPARO,                                                    
-##      circunscripcion=Nogoyá,                                                    
-##      reccap_0,                                                                  
-##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
-## [4] {tproc=EJECUTIVO,                                                           
-##      circunscripcion=Paraná,                                                    
-##      reccap_1,                                                                  
-##      justiciables0_1}        => {rapido}   0.001295784  1.0000000 3.673754    15
-## [5] {tproc=ACCION DE AMPARO,                                                    
-##      circunscripcion=Nogoyá,                                                    
-##      materia=paz,                                                               
-##      reccap_0,                                                                  
-##      justiciables0_1}        => {demorado} 0.001382170  1.0000000 3.748705    16
-## [6] {tproc=EJECUTIVO,                                                           
-##      circunscripcion=Paraná,                                                    
-##      materia=paz,                                                               
-##      reccap_1,                                                                  
-##      justiciables0_1}        => {rapido}   0.001295784  1.0000000 3.673754    15
-## [7] {tproc=ACCION DE AMPARO,                                                    
-##      circunscripcion=Nogoyá,                                                    
-##      materia=paz}            => {demorado} 0.002591569  0.9677419 3.627779    30
-## [8] {tproc=ACCION DE AMPARO,                                                    
-##      circunscripcion=Nogoyá,                                                    
-##      materia=paz,                                                               
-##      reccap_0}               => {demorado} 0.002591569  0.9677419 3.627779    30
+##     lhs                                rhs            support confidence     lift count
+## [1] {tproc=ACCION DE AMPARO,                                                           
+##      circunscripcion=Nogoyá,                                                           
+##      justiciables0_1}               => {demorado} 0.001382170  1.0000000 3.748705    16
+## [2] {tproc=EJECUTIVO,                                                                  
+##      circunscripcion=Paraná,                                                           
+##      reccap_1,                                                                         
+##      justiciables0_1}               => {rapido}   0.001295784  1.0000000 3.673754    15
+## [3] {tproc=ACCION DE AMPARO,                                                           
+##      circunscripcion=Nogoyá,                                                           
+##      materia=paz}                   => {demorado} 0.002591569  0.9677419 3.627779    30
+## [4] {tproc=DIVORCIO,                                                                   
+##      circunscripcion=Gualeguay}     => {rapido}   0.002332412  0.9642857 3.542549    27
+## [5] {tproc=EJECUTIVO,                                                                  
+##      circunscripcion=Paraná,                                                           
+##      justiciables0_1}               => {rapido}   0.001727713  0.9523810 3.498814    20
+## [6] {circunscripcion=Paraná,                                                           
+##      reccap_1,                                                                         
+##      justiciables0_1}               => {rapido}   0.001382170  0.9411765 3.457651    16
+## [7] {tproc=EJECUTIVO,                                                                  
+##      reccap_1,                                                                         
+##      justiciables0_1}               => {rapido}   0.001295784  0.9375000 3.444145    15
+## [8] {tproc=EJECUCION DE HONORARIOS,                                                    
+##      circunscripcion=Paraná,                                                           
+##      materia=cco,                                                                      
+##      justiciables0_1}               => {rapido}   0.001209399  0.9333333 3.428837    14
 \end{verbatim}
 
 \normalsize
@@ -927,17 +963,112 @@ Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 
 \normalsize
 
-Se puede observar que tenemos reglas \ldots{}
+Se toman las reglas ordenandas por confianza para analizar.
+
+\scriptsize
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(top.confidence)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## set of 140 rules
+## 
+## rule length distribution (lhs + rhs):sizes
+##  2  3  4  5  6 
+##  2 46 70 21  1 
+## 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   2.000   3.000   4.000   3.807   4.000   6.000 
+## 
+## summary of quality measures:
+##     support           confidence          lift           count       
+##  Min.   :0.001037   Min.   :0.5000   Min.   :1.837   Min.   : 12.00  
+##  1st Qu.:0.001296   1st Qu.:0.5351   1st Qu.:1.988   1st Qu.: 15.00  
+##  Median :0.001814   Median :0.5888   Median :2.204   Median : 21.00  
+##  Mean   :0.003960   Mean   :0.6396   Mean   :2.369   Mean   : 45.84  
+##  3rd Qu.:0.004730   3rd Qu.:0.7103   3rd Qu.:2.657   3rd Qu.: 54.75  
+##  Max.   :0.014599   Max.   :1.0000   Max.   :3.749   Max.   :169.00  
+## 
+## mining info:
+##              data ntransactions support confidence
+##  sentencias_final         11576   0.001        0.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{inspect}\NormalTok{(top.confidence[}\DecValTok{1}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     lhs                                rhs            support confidence     lift count
+## [1] {tproc=ACCION DE AMPARO,                                                           
+##      circunscripcion=Nogoyá,                                                           
+##      justiciables0_1}               => {demorado} 0.001382170  1.0000000 3.748705    16
+## [2] {tproc=EJECUTIVO,                                                                  
+##      circunscripcion=Paraná,                                                           
+##      reccap_1,                                                                         
+##      justiciables0_1}               => {rapido}   0.001295784  1.0000000 3.673754    15
+## [3] {tproc=ACCION DE AMPARO,                                                           
+##      circunscripcion=Nogoyá,                                                           
+##      materia=paz}                   => {demorado} 0.002591569  0.9677419 3.627779    30
+## [4] {tproc=DIVORCIO,                                                                   
+##      circunscripcion=Gualeguay}     => {rapido}   0.002332412  0.9642857 3.542549    27
+## [5] {tproc=EJECUTIVO,                                                                  
+##      circunscripcion=Paraná,                                                           
+##      justiciables0_1}               => {rapido}   0.001727713  0.9523810 3.498814    20
+## [6] {circunscripcion=Paraná,                                                           
+##      reccap_1,                                                                         
+##      justiciables0_1}               => {rapido}   0.001382170  0.9411765 3.457651    16
+## [7] {tproc=EJECUTIVO,                                                                  
+##      reccap_1,                                                                         
+##      justiciables0_1}               => {rapido}   0.001295784  0.9375000 3.444145    15
+## [8] {tproc=EJECUCION DE HONORARIOS,                                                    
+##      circunscripcion=Paraná,                                                           
+##      materia=cco,                                                                      
+##      justiciables0_1}               => {rapido}   0.001209399  0.9333333 3.428837    14
+\end{verbatim}
+
+\normalsize
 
 \section{Resultados / Discusión}\label{resultados-discusion}
 
-\ldots{}
+\subsection{Asociaciones destacadas:}\label{asociaciones-destacadas}
+
+\begin{itemize}
+\tightlist
+\item
+  tipo de proceso \emph{ACCIÓN DE AMPARO} en las circunscripción de
+  \textbf{Nogoyá} como \emph{demoradas} con respecto a los valores
+  provinciales.
+\item
+  \emph{APREMIO} con capital reclamado \emph{recap\_1} aparecen en gral
+  \emph{demorados}, sin embargo, cuando el capital reclamado es
+  \emph{recap\_0}, se resuelven \emph{rápido}.
+\item
+  Los procesos \emph{EJECUTIVO} en \emph{Gualeguaychú} aparecen como
+  \emph{demorados}.
+\end{itemize}
+
+Han aparecido reglas que eran de esperarse debido, por ejemplo, dado un
+tipo de proceso, al incrementarse el capital reclamado o el nro de
+justiciables, se puede inferir que todo el proceso se hace más complejo
+y se elongue en el tiempo su resolución.
+
+Sin embargo, \emph{no hay razones} de tipo procesal, para que
+\emph{diferentes circunscrupciones/jurisdicciones presenten
+diferencias}, las mismas, \emph{son las más significativas para el
+análisis} y requieren un análisis más profundo. Las mismas pueden poner
+en evidencia diferencias en dotaciones de personal, prácticas
+administrativas y/o alguna circunstancia particular que lleve a estas
+diferencias.
 
 \section{Conclusiones}\label{conclusiones}
 
-\ldots{}
-
-\section{Referencias}\label{referencias}
+\section{References}\label{references}
 
 \ldots{}
 

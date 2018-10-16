@@ -1,10 +1,11 @@
 ---
 title: "Minería de Datos"
-author: "Bodean, Emiliano & Ojeda, Zacarías"
+author: "Bodean, Emiliano - Ojeda, Zacarías"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
 keywords: "Minería de Datos, sentencia, justicia, demora, reglas de asociación"
 abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia de causas judiciales, en la búsqueda de identificar patrones o asociaciones que lleven a diferentes tiempos de demora en los mismos."
 university: "UTN Regional Paraná"
+bibliography: references.bib
 output:
   pdf_document:
     fig_caption: yes
@@ -12,6 +13,7 @@ output:
     md_extensions: +footnotes
     latex_engine: xelatex
     template: lncs-template.tex
+    citation_package: biblatex
   html_document:
     css: lncs.css
     md_extensions: +footnotes
@@ -71,7 +73,7 @@ Se cuenta con una base de datos de resoluciones correspondientes al Superior Tri
 
 El análisis se realiza analizando demoras según el tipo de proceso, debido a que cada tipo de proceso, por su naturaleza, implica diferente tratamiento por parte de los organismos (juzgados) y por ende supone demoras esperables diferentes.
 
-
+El procesamiento y análisis de datos se ha realizado con el lenguaje R v3.4.4 [@R]
 
 # Procesamiento de Datos
 
@@ -327,6 +329,13 @@ inspect(rules[1:8])
 
 ```
 
+Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas son similares pero solamente difieren en su nivel especificidad, por esto deben ser eliminadas para el análisis.
+```{r size = 'scriptsize'}
+rules <- rules[!is.redundant(rules)]
+inspect(rules[1:8])
+```
+
+
 Se vuelven a visualizar las reglas pero ordenas por soporte y confianza.
 
 ```{r size = 'scriptsize'}
@@ -336,7 +345,6 @@ inspect(top.confidence[1:8])
 
 ```
 
-
 ```{r size = 'scriptsize'}
 
 top.support <- sort(rules, decreasing = TRUE, 
@@ -345,30 +353,34 @@ inspect(top.support[1:8])
 
 ```
 
-Se toman las reglas ordenandas por confianza para analizar y eliminar las reglas redundantes. Se puede observar en el inspect que las reglas 2 y 3 son similares a la regla 1 pero más específicas, por esto deben ser eliminadas para el análisis.
-Se elimianan las reglas redundantes y se imprimen las primeras 8.
+Se toman las reglas ordenandas por confianza para analizar.
 
 ```{r size = 'scriptsize'}
-top.confidence <- top.confidence[!is.redundant(top.confidence)]
-
 summary(top.confidence)
 
 inspect(top.confidence[1:8])
 
 ```
-Se puede observar que tenemos reglas ...
-
 
 # Resultados / Discusión
 
-...
+## Asociaciones destacadas: 
+
+* tipo de proceso *ACCIÓN DE AMPARO* en las circunscripción de **Nogoyá** como *demoradas* con respecto a los valores provinciales.
+* *APREMIO* con capital reclamado *recap_1* aparecen en gral *demorados*, sin embargo, cuando el capital reclamado es *recap_0*, se resuelven *rápido*.
+* Los procesos *EJECUTIVO* en *Gualeguaychú* aparecen como *demorados*.
+
+Han aparecido reglas que eran de esperarse debido, por ejemplo, dado un tipo de proceso, al incrementarse el capital reclamado o el nro de justiciables, se puede inferir que todo el proceso se hace más complejo y se elongue en el tiempo su resolución.
+
+Sin embargo, *no hay razones* de tipo procesal, para que *diferentes circunscrupciones/jurisdicciones presenten diferencias*, las mismas, *son las más significativas para el análisis* y requieren un análisis más profundo. Las mismas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.
 
 
 # Conclusiones
 
-...
 
-# Referencias
+
+# References
+
 
 ...
 
