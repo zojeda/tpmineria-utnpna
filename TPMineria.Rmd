@@ -326,13 +326,13 @@ inspect(rules[1:8])
 ```
 
 
-Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas son similares pero solamente difieren en su nivel especificidad, por esto deben ser eliminadas para el análisis.
+Se elimianan las reglas redundantes y se imprimen las primeras 8. Se puede observar que hay reglas que son similares pero solamente difieren en su nivel de especificidad, por esto deben ser eliminadas para el análisis.
 ```{r size = 'scriptsize'}
 rules <- rules[!is.redundant(rules)]
 inspect(rules[1:8])
 ```
 
-Graficamos las reglas para ver como varia el soporte y la confianza.
+Graficamos las reglas para ver como varía el soporte y la confianza.
 
 ```{r echo=FALSE, fig.height=4, fig.width=4.5, message=FALSE, warning=FALSE}
 
@@ -392,7 +392,7 @@ inspect(top.confidence[1:8])
 
 Se han obtenido reglas que eran de esperarse debido, por ejemplo, a que dado un tipo de proceso, al incrementarse el capital reclamado o el nro de justiciables, se puede inferir que todo el proceso se hace más complejo y se elonguen los tiempos de resolución por sentencia.
 
-Sin embargo, *no hay razones* de tipo procesal, para que *diferentes circunscrupciones/jurisdicciones presenten diferencias*, las mismas, *son las más significativas para el análisis* y requieren una investigación más profunda. Las mismas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.
+Sin embargo, *no hay razones* de tipo procesal, para que *diferentes circunscrupciones/jurisdicciones presenten diferencias*, las mismas, *son las más significativas para el análisis* y requieren una investigación más profunda. Las reglas generadas pueden poner en evidencia diferencias en dotaciones de personal, prácticas administrativas y/o alguna circunstancia particular que lleve a estas diferencias.
 
 
 # Conclusiones
