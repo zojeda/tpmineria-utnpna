@@ -7,6 +7,11 @@ abstract: "Se presenta un análisis sobre los tiempos entre inicio y sentencia d
 university: "UTN Regional Paraná"
 bibliography: references.bib
 output:
+  pdf_document:
+    fig_caption: yes
+    md_extensions: +footnotes
+    latex_engine: xelatex
+    template: lncs-template.tex
   html_document:
     css: lncs.css
     md_extensions: +footnotes
@@ -14,11 +19,6 @@ output:
     self_contained: no
     template: lncs-template.html
     theme: null
-  pdf_document:
-    fig_caption: yes
-    md_extensions: +footnotes
-    latex_engine: xelatex
-    template: lncs-template.tex
 lang: "es-AR"
 csl: lncs.csl
 ---
